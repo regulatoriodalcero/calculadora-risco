@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora de Risco Intrínseco — Dal Cero Consultoria</title>
+<meta name="description" content="Calcule o Risco Intrínseco (RI) do seu estabelecimento fabricante ou fracionador de produtos para alimentação animal, conforme manual SDA/MAPA.">
+<style>
+  :root{
+    --azul-claro:#177fe5;
+    --azul-medio:#4399FF;
+    --azul-forte:#0043D8;
+    --azul-escuro:#003B91;
+    --azul-noite:#041F47;
+    --dourado:#E8B461;
+    --cinza:#eaeaea;
+    --cinza-texto:#3a3a3a;
+    --branco:#ffffff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,sans-serif;
+    background:var(--cinza);
+    color:var(--cinza-texto);
+    line-height:1.55;
+    min-height:100vh;
+  }
+  header{
+    background:var(--azul-noite);
+    color:var(--branco);
+    padding:24px 32px;
+    box-shadow:0 4px 16px rgba(4,31,71,.18);
+    position:sticky;top:0;z-index:10;
+  }
+  .header-inner{
+    max-width:1080px;margin:0 auto;
+    display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;
+  }
+  .brand{display:flex;align-items:center;gap:14px}
+  .brand img,.brand svg.logo-svg{height:54px;width:auto;flex-shrink:0}
+  .brand-text{display:flex;flex-direction:column;line-height:1.1}
+  .brand-text .name{font-weight:800;letter-spacing:2px;font-size:22px;color:var(--branco)}
+  .brand-text .tag{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--azul-medio);margin-top:2px}
+  .header-title{font-size:14px;color:#cfd9e8;text-align:right;max-width:380px}
+
+  main{max-width:1080px;margin:0 auto;padding:32px 24px 80px}
+
+  .hero{
+    background:linear-gradient(135deg,var(--azul-escuro) 0%,var(--azul-forte) 60%,var(--azul-claro) 100%);
+    color:var(--branco);
+    border-radius:14px;
+    padding:36px 32px;
+    margin-bottom:28px;
+    box-shadow:0 8px 24px rgba(0,67,216,.18);
+  }
+  .hero h1{font-size:26px;font-weight:700;margin-bottom:10px;letter-spacing:.3px}
+  .hero p{font-size:15px;opacity:.95;max-width:780px}
+  .hero .ref{font-size:12px;opacity:.8;margin-top:14px;border-top:1px solid rgba(255,255,255,.25);padding-top:10px}
+  .hero .ref a{color:#ffd98a;text-decoration:underline}
+
+  .progress{
+    display:flex;justify-content:space-between;margin:0 0 24px;gap:8px;
+  }
+  .progress .step{
+    flex:1;padding:10px 8px;background:var(--branco);border-radius:8px;text-align:center;
+    font-size:12px;font-weight:600;color:#8a8a8a;border:2px solid transparent;transition:all .25s;
+  }
+  .progress .step.active{background:var(--azul-forte);color:var(--branco);border-color:var(--azul-escuro)}
+  .progress .step.done{background:var(--azul-medio);color:var(--branco)}
+  .progress .step .num{display:block;font-size:18px;margin-bottom:2px}
+
+  .card{
+    background:var(--branco);
+    border-radius:12px;
+    padding:28px 30px;
+    margin-bottom:18px;
+    box-shadow:0 2px 10px rgba(4,31,71,.06);
+    border-left:5px solid var(--azul-claro);
+  }
+  .card h2{
+    color:var(--azul-noite);font-size:19px;margin-bottom:6px;font-weight:700;
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  }
+  .card h2 .badge{
+    background:var(--azul-claro);color:var(--branco);font-size:11px;font-weight:700;
+    padding:3px 8px;border-radius:6px;letter-spacing:.5px;
+  }
+  .card .desc{font-size:13px;color:#666;margin-bottom:18px}
+  .card .obs{font-size:12px;color:#888;background:#f5f7fb;border-left:3px solid var(--dourado);padding:8px 12px;border-radius:4px;margin-top:12px}
+
+  label.opt{
+    display:flex;align-items:flex-start;gap:10px;
+    padding:12px 14px;margin-bottom:6px;
+    background:#f7f9fc;border-radius:8px;cursor:pointer;
+    transition:background .15s;border:1.5px solid transparent;
+  }
+  label.opt:hover{background:#eef3fb}
+  label.opt input{margin-top:3px;flex-shrink:0;width:18px;height:18px;accent-color:var(--azul-forte);cursor:pointer}
+  .opt-content{font-size:14px;flex:1}
+  .opt-content small{display:block;color:#777;font-size:12px;margin-top:2px;font-weight:400}
+  .opt-pts{
+    font-size:11px;background:var(--azul-noite);color:var(--branco);
+    padding:2px 7px;border-radius:4px;font-weight:700;flex-shrink:0;margin-top:1px;
+  }
+
+  .input-group{margin-bottom:14px}
+  .input-group label{display:block;font-size:13px;font-weight:600;color:var(--azul-noite);margin-bottom:6px}
+  .input-group input[type=number],.input-group input[type=text],.input-group input[type=email],.input-group input[type=tel]{
+    width:100%;padding:11px 14px;border:1.5px solid #d0d8e3;border-radius:8px;font-size:15px;
+    transition:border .15s;font-family:inherit;
+  }
+  .input-group input:focus{outline:none;border-color:var(--azul-forte);box-shadow:0 0 0 3px rgba(0,67,216,.12)}
+
+  .radio-row{display:flex;gap:10px;flex-wrap:wrap}
+  .radio-row label.opt{flex:1;min-width:140px;margin-bottom:0}
+
+  .group-block{
+    margin-bottom:18px;padding:14px 16px;background:#fbfcfe;border-radius:8px;border:1px solid #eef1f6;
+  }
+  .group-block .group-title{
+    font-weight:700;color:var(--azul-escuro);font-size:13px;margin-bottom:10px;
+    display:flex;justify-content:space-between;align-items:center;
+  }
+  .group-block .group-title .pts-tag{
+    background:var(--dourado);color:#5a3c0c;font-size:11px;padding:2px 7px;border-radius:4px;font-weight:700;
+  }
+
+  .actions{display:flex;justify-content:space-between;gap:12px;margin-top:24px;flex-wrap:wrap}
+  button{
+    padding:13px 28px;font-size:15px;font-weight:600;border:none;border-radius:8px;cursor:pointer;
+    transition:all .15s;font-family:inherit;
+  }
+  .btn-primary{background:var(--azul-forte);color:var(--branco);box-shadow:0 4px 12px rgba(0,67,216,.25)}
+  .btn-primary:hover{background:var(--azul-escuro);transform:translateY(-1px);box-shadow:0 6px 16px rgba(0,67,216,.35)}
+  .btn-secondary{background:var(--cinza);color:var(--azul-noite);border:1.5px solid #c4ccda}
+  .btn-secondary:hover{background:#dde3ec}
+  .btn-gold{background:var(--dourado);color:#3d2806;box-shadow:0 4px 12px rgba(232,180,97,.35)}
+  .btn-gold:hover{background:#d9a149;transform:translateY(-1px)}
+
+  /* Resultado */
+  #resultado{display:none}
+  .result-card{
+    background:var(--branco);border-radius:14px;padding:36px 32px;
+    box-shadow:0 8px 28px rgba(4,31,71,.12);margin-bottom:18px;
+  }
+  .result-header{text-align:center;margin-bottom:24px}
+  .result-header .empresa{font-size:13px;color:#888;text-transform:uppercase;letter-spacing:1.5px}
+  .result-header .empresa strong{color:var(--azul-noite);font-size:15px}
+  .result-header h2{color:var(--azul-noite);font-size:24px;margin-top:6px}
+
+  .score-box{
+    background:var(--azul-escuro);
+    color:var(--branco);border-radius:12px;padding:28px;text-align:center;margin-bottom:24px;
+  }
+  .score-box .pts{font-size:56px;font-weight:800;line-height:1;letter-spacing:-1px}
+  .score-box .pts-label{font-size:13px;text-transform:uppercase;letter-spacing:2px;opacity:.9;margin-bottom:14px}
+  .score-box .classif{
+    display:inline-block;background:var(--dourado);color:#3d2806;font-weight:700;
+    font-size:15px;padding:6px 18px;border-radius:6px;margin-top:14px;letter-spacing:1px;
+  }
+  .score-box .nivel{font-size:22px;font-weight:700;margin-top:14px}
+  .score-box .frequencia{font-size:13px;opacity:.95;margin-top:8px}
+
+  .breakdown{margin-top:8px}
+  .breakdown h3{color:var(--azul-noite);font-size:16px;margin-bottom:12px;font-weight:700}
+  .breakdown table{width:100%;border-collapse:collapse;font-size:13px}
+  .breakdown th,.breakdown td{padding:10px 8px;text-align:left;border-bottom:1px solid #eef1f6}
+  .breakdown th{background:#f5f7fb;color:var(--azul-noite);font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.5px}
+  .breakdown td.num{text-align:right;font-weight:700;color:var(--azul-forte)}
+  .breakdown tr.total td{background:#e7f0fd;font-weight:800;color:var(--azul-escuro);font-size:14px;border-top:2px solid var(--azul-claro)}
+
+  .legend-table{margin-top:20px}
+  .legend-table table{width:100%;border-collapse:collapse;font-size:12px}
+  .legend-table th,.legend-table td{padding:8px;text-align:left;border:1px solid #e0e6ef}
+  .legend-table th{background:#f5f7fb;color:var(--azul-noite)}
+  .legend-table tr.match{background:#fff4e0;font-weight:700}
+
+  /* Bloco de captura de leads (LGPD-compliant) */
+  .lead-card{
+    background:var(--branco);border-radius:12px;padding:28px;margin-bottom:18px;
+    border:2px solid var(--azul-claro);box-shadow:0 4px 14px rgba(0,67,216,.08);
+  }
+  .lead-card h3{color:var(--azul-noite);font-size:18px;margin-bottom:6px;font-weight:700}
+  .lead-card .lead-desc{font-size:13px;color:#666;margin-bottom:16px}
+  .lead-card .consent{
+    background:#f5f7fb;border-left:4px solid var(--dourado);padding:12px 14px;
+    border-radius:6px;font-size:12px;color:#555;margin-bottom:16px;
+  }
+  .lead-card .consent strong{color:var(--azul-noite)}
+  .lead-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .lead-grid .full{grid-column:1/-1}
+  @media (max-width:600px){.lead-grid{grid-template-columns:1fr}}
+  .lead-status{margin-top:12px;padding:10px 14px;border-radius:6px;font-size:13px;display:none}
+  .lead-status.success{background:#d4f4d8;color:#1f6b2a;border-left:4px solid #28a745;display:block}
+  .lead-status.error{background:#fde2e2;color:#a52a2a;border-left:4px solid #d9534f;display:block}
+  .lead-status.loading{background:#e7f0fd;color:var(--azul-escuro);border-left:4px solid var(--azul-forte);display:block}
+
+  footer{
+    text-align:center;padding:20px;color:#888;font-size:12px;border-top:1px solid #d0d8e3;margin-top:40px;
+  }
+  footer a{color:var(--azul-forte);text-decoration:none}
+
+  @media (max-width:700px){
+    header{padding:18px 18px}
+    .header-title{display:none}
+    .brand-text .name{font-size:18px}
+    .hero{padding:24px 20px}
+    .hero h1{font-size:21px}
+    .card{padding:22px 18px}
+    .progress{flex-wrap:wrap}
+    .progress .step{font-size:11px}
+    .actions{flex-direction:column-reverse}
+    .actions button{width:100%}
+    .score-box .pts{font-size:46px}
+  }
+
+  /* =========================
+     CSS DE IMPRESSÃO / PDF
+     ========================= */
+  @media print{
+    @page{size:A4;margin:14mm 12mm}
+    body{background:var(--branco)!important;color:#000!important}
+    body *{visibility:hidden!important}
+    #print-area, #print-area *{visibility:visible!important}
+    #print-area{
+      position:absolute;left:0;top:0;width:100%;padding:0;margin:0;
+    }
+    header,.actions,.progress,footer,#pdf-actions,#lead-card,#form-risco,.hero{display:none!important}
+    .result-card{box-shadow:none!important;border:1px solid #ccc;border-radius:6px;padding:18px!important;margin:0!important}
+    .score-box{
+      background:#003B91!important;
+      -webkit-print-color-adjust:exact!important;
+      print-color-adjust:exact!important;
+      color:#fff!important;
+    }
+    .score-box .classif{
+      background:#E8B461!important;color:#3d2806!important;
+      -webkit-print-color-adjust:exact!important;
+      print-color-adjust:exact!important;
+    }
+    .breakdown th{background:#f0f0f0!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+    .breakdown tr.total td{background:#e0e8f5!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+    .legend-table tr.match{background:#fff4e0!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+    .print-header{display:block!important;text-align:center;margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid #003B91}
+    .print-header strong{color:#003B91;font-size:18px;letter-spacing:2px}
+    .print-header .sub{font-size:11px;color:#666;display:block;margin-top:2px}
+  }
+  .print-header{display:none}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="brand">
+      <!-- LOGO oficial Dal Cero — versão SVG fiel. Substitua por <img src="logo.png"> quando tiver o arquivo. -->
+      <svg viewBox="0 0 240 80" xmlns="http://www.w3.org/2000/svg" aria-label="Dal Cero Consultoria" class="logo-svg">
+        <!-- Símbolo -->
+        <g>
+          <rect x="0" y="4" width="72" height="72" rx="14" fill="#4399FF"/>
+          <ellipse cx="26" cy="40" rx="18" ry="32" fill="#0043D8"/>
+          <ellipse cx="46" cy="40" rx="18" ry="32" fill="#003B91" opacity="0.78"/>
+        </g>
+        <!-- Texto DAL CERO -->
+        <text x="88" y="54" font-family="-apple-system, 'Segoe UI', Arial, sans-serif" font-weight="900" font-size="42" fill="#eaeaea" letter-spacing="2">DAL CERO</text>
+      </svg>
+      <div class="brand-text" style="display:none">
+        <span class="name">DAL CERO</span>
+        <span class="tag">Consultoria Regulatória</span>
+      </div>
+    </div>
+    <div class="header-title">Calculadora de Risco Intrínseco · Alimentação Animal · SDA/MAPA</div>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <h1>Calculadora de Risco Intrínseco (RI)</h1>
+    <p>Ferramenta de avaliação do Risco Intrínseco para estabelecimentos fabricantes e fracionadores de produtos destinados à alimentação animal, conforme o <strong>Manual SDA/MAPA — Caracterização do Risco (v.3, 2025)</strong>. O resultado classifica o estabelecimento de A (Baixíssimo) a E (Altíssimo) e estima a frequência mínima de fiscalização aplicável quando o RR estiver em Grau 0.</p>
+    <p class="ref">Referência: <a href="https://wikisda.agricultura.gov.br/pt-br/Inspe%C3%A7%C3%A3o-Animal/Alimenta%C3%A7%C3%A3o-Animal/caracterizacao_risco_alimentacao_animal" target="_blank" rel="noopener">Wiki SDA — Caracterização do Risco</a></p>
+  </section>
+
+  <div class="progress" id="progress">
+    <div class="step active" data-step="1"><span class="num">1</span>Identificação</div>
+    <div class="step" data-step="2"><span class="num">2</span>Fatores de Risco</div>
+    <div class="step" data-step="3"><span class="num">3</span>Complexidade</div>
+    <div class="step" data-step="4"><span class="num">4</span>Resultado</div>
+  </div>
+
+  <form id="form-risco">
+
+    <!-- =================== ETAPA 1 — Identificação =================== -->
+    <section class="card" data-section="1">
+      <h2>Identificação do estabelecimento <span class="badge">Etapa 1</span></h2>
+      <p class="desc">Dados informativos que aparecerão no relatório.</p>
+
+      <div class="input-group">
+        <label for="empresa">Nome do estabelecimento</label>
+        <input type="text" id="empresa" placeholder="Ex: Indústria de Rações XYZ Ltda.">
+      </div>
+      <div class="input-group">
+        <label for="cnpj">CNPJ / Registro MAPA</label>
+        <input type="text" id="cnpj" placeholder="Opcional">
+      </div>
+      <div class="input-group">
+        <label for="responsavel">Responsável pelo preenchimento</label>
+        <input type="text" id="responsavel" placeholder="Nome do responsável técnico ou avaliador">
+      </div>
+    </section>
+
+    <!-- =================== ETAPA 2 — Fatores de Risco =================== -->
+
+    <!-- FATOR 1: Volume de produção (peso 5) -->
+    <section class="card" data-section="2" data-fator="1">
+      <h2>Fator 1 — Volume de produção <span class="badge">Peso 5</span></h2>
+      <p class="desc">Quantitativo total anual produzido (todas as categorias somadas). Fonte: SipeAgro ou relatórios de produção.</p>
+
+      <div class="input-group">
+        <label for="volume">Volume produzido (toneladas/ano)</label>
+        <input type="number" id="volume" min="0" step="any" placeholder="Ex: 8500">
+      </div>
+
+      <div class="radio-row">
+        <label class="opt"><input type="radio" name="f1" value="1"><span class="opt-content">Até 1.000 t — <small>Pequeno → Baixo</small></span><span class="opt-pts">1pt</span></label>
+        <label class="opt"><input type="radio" name="f1" value="2"><span class="opt-content">1.000 a 10.000 t — <small>Médio → Médio</small></span><span class="opt-pts">2pt</span></label>
+        <label class="opt"><input type="radio" name="f1" value="3"><span class="opt-content">10.000 a 35.000 t — <small>Grande → Alto</small></span><span class="opt-pts">3pt</span></label>
+        <label class="opt"><input type="radio" name="f1" value="4"><span class="opt-content">Acima de 35.000 t — <small>Muito grande → Altíssimo</small></span><span class="opt-pts">4pt</span></label>
+      </div>
+      <div class="obs">Em caso de ausência de dados, supor risco máximo. O preenchimento do campo "volume" classifica automaticamente.</div>
+    </section>
+
+    <!-- FATOR 2: Tipos e quantidades de produtos (peso 6) -->
+    <section class="card" data-section="2" data-fator="2">
+      <h2>Fator 2 — Tipos e quantidades de categorias de produtos <span class="badge">Peso 6</span></h2>
+      <p class="desc">Marque <strong>todas</strong> as categorias elaboradas. A pontuação é somada conforme o Quadro I do manual.</p>
+
+      <div class="group-block">
+        <div class="group-title">TIPO 1 <span class="pts-tag">1 ponto cada</span></div>
+        <label class="opt"><input type="checkbox" name="f2_t1" value="1"><span class="opt-content">Alimentos completos, específicos, coadjuvantes ou produtos mastigáveis</span></label>
+        <label class="opt"><input type="checkbox" name="f2_t1" value="1"><span class="opt-content">Rações</span></label>
+        <label class="opt"><input type="checkbox" name="f2_t1" value="1"><span class="opt-content">Concentrados</span></label>
+        <label class="opt"><input type="checkbox" name="f2_t1" value="1"><span class="opt-content">Suplementos</span></label>
+        <label class="opt"><input type="checkbox" name="f2_t1" value="1"><span class="opt-content">Ingredientes de origem vegetal (exceto Tipos 2 e 4)</span></label>
+      </div>
+
+      <div class="group-block">
+        <div class="group-title">TIPO 2 <span class="pts-tag">4 pontos cada</span></div>
+        <label class="opt"><input type="checkbox" name="f2_t2" value="4"><span class="opt-content">Núcleos</span></label>
+        <label class="opt"><input type="checkbox" name="f2_t2" value="4"><span class="opt-content">Premixes</span></label>
+        <label class="opt"><input type="checkbox" name="f2_t2" value="4"><span class="opt-content">Aditivos tecnológicos (exceto Tipo 4)</span></label>
+        <label class="opt"><input type="checkbox" name="f2_t2" value="4"><span class="opt-content">Aditivos sensoriais (exceto Tipo 3)</span></label>
+        <label class="opt"><input type="checkbox" name="f2_t2" value="4"><span class="opt-content">Ingredientes de origem vegetal (farelos e óleos)</span></label>
+      </div>
+
+      <div class="group-block">
+        <div class="group-title">TIPO 3 <span class="pts-tag">6 pontos cada</span></div>
+        <label class="opt"><input type="checkbox" name="f2_t3" value="6"><span class="opt-content">Coprodutos</span></label>
+        <label class="opt"><input type="checkbox" name="f2_t3" value="6"><span class="opt-content">Ingredientes de origem mineral (exceto Tipo 4)</span></label>
+        <label class="opt"><input type="checkbox" name="f2_t3" value="6"><span class="opt-content">Aditivos sensoriais à base de vísceras organolépticas</span></label>
+        <label class="opt"><input type="checkbox" name="f2_t3" value="6"><span class="opt-content">Aditivos nutricionais (aminoácidos e vitaminas)</span></label>
+      </div>
+
+      <div class="group-block">
+        <div class="group-title">TIPO 4 <span class="pts-tag">8 pontos cada</span></div>
+        <label class="opt"><input type="checkbox" name="f2_t4" value="8"><span class="opt-content">Ingredientes vegetais de subprodutos de biocombustíveis (DGS, DDGS, glicerina, glicerol)</span></label>
+        <label class="opt"><input type="checkbox" name="f2_t4" value="8"><span class="opt-content">Ingredientes vegetais de fermentação microbiana (leveduras)</span></label>
+        <label class="opt"><input type="checkbox" name="f2_t4" value="8"><span class="opt-content">Ingredientes de origem vegetal (polpa cítrica)</span></label>
+        <label class="opt"><input type="checkbox" name="f2_t4" value="8"><span class="opt-content">Ingredientes de origem mineral (cal e bentonita)</span></label>
+        <label class="opt"><input type="checkbox" name="f2_t4" value="8"><span class="opt-content">Ingredientes de origem animal</span></label>
+        <label class="opt"><input type="checkbox" name="f2_t4" value="8"><span class="opt-content">Aditivos zootécnicos</span></label>
+        <label class="opt"><input type="checkbox" name="f2_t4" value="8"><span class="opt-content">Aditivos tecnológicos (adsorventes de micotoxinas à base de parede celular)</span></label>
+        <label class="opt"><input type="checkbox" name="f2_t4" value="8"><span class="opt-content">Aditivos nutricionais (exceto Tipo 3)</span></label>
+      </div>
+
+      <div class="obs">Somatório calculado: <strong id="f2-soma">0</strong> pontos → Classificação: até 5 = Baixo · 6-10 = Médio · 11-15 = Alto · >15 = Altíssimo</div>
+    </section>
+
+    <!-- FATOR 3: Animais de produção (peso 5) -->
+    <section class="card" data-section="2" data-fator="3">
+      <h2>Fator 3 — Elaboração para animais de produção <span class="badge">Peso 5</span></h2>
+      <p class="desc">Produção destinada a animais de produção (não inclui exclusivamente equídeos nem fabricantes exclusivos de ingredientes/aditivos/coprodutos).</p>
+      <div class="radio-row">
+        <label class="opt"><input type="radio" name="f3" value="1"><span class="opt-content"><strong>Não</strong> produz para animais de produção</span><span class="opt-pts">1pt</span></label>
+        <label class="opt"><input type="radio" name="f3" value="4"><span class="opt-content"><strong>Sim</strong>, produz para animais de produção</span><span class="opt-pts">4pt</span></label>
+      </div>
+      <div class="obs">Para fabricantes exclusivos de ingredientes, aditivos e coprodutos, a pontuação é <strong>zero</strong> neste item — desconsidere o fator no resultado.</div>
+    </section>
+
+    <!-- FATOR 4: Espécies (peso 4) -->
+    <section class="card" data-section="2" data-fator="4">
+      <h2>Fator 4 — Quantidade e tipos de espécies <span class="badge">Peso 4</span></h2>
+      <p class="desc">Marque todas as espécies para as quais o estabelecimento produz (Quadro II).</p>
+
+      <label class="opt"><input type="checkbox" name="f4" value="6"><span class="opt-content">Aves de produção</span><span class="opt-pts">6pt</span></label>
+      <label class="opt"><input type="checkbox" name="f4" value="6"><span class="opt-content">Suínos</span><span class="opt-pts">6pt</span></label>
+      <label class="opt"><input type="checkbox" name="f4" value="3"><span class="opt-content">Ruminantes</span><span class="opt-pts">3pt</span></label>
+      <label class="opt"><input type="checkbox" name="f4" value="2"><span class="opt-content">Peixes / animais aquáticos de produção</span><span class="opt-pts">2pt</span></label>
+      <label class="opt"><input type="checkbox" name="f4" value="1"><span class="opt-content">Qualquer outra espécie (equinos, pets, coelhos etc.)</span><span class="opt-pts">1pt</span></label>
+
+      <div class="obs">Somatório calculado: <strong id="f4-soma">0</strong> pontos → Até 1 = Baixo · 2-5 = Médio · 6-8 = Alto · ≥9 = Altíssimo</div>
+    </section>
+
+    <!-- FATOR 5: Melhoradores de desempenho (peso 2) -->
+    <section class="card" data-section="2" data-fator="5">
+      <h2>Fator 5 — Uso de melhoradores de desempenho <span class="badge">Peso 2</span></h2>
+      <p class="desc">Uso de antimicrobianos, beta-agonistas e/ou aditivos anticoccidianos. Estabelecimentos devem declarar o não uso no SipeAgro.</p>
+      <div class="radio-row">
+        <label class="opt"><input type="radio" name="f5" value="1"><span class="opt-content"><strong>Não</strong> usa (declarado no SipeAgro)</span><span class="opt-pts">1pt</span></label>
+        <label class="opt"><input type="radio" name="f5" value="4"><span class="opt-content"><strong>Sim</strong>, usa pelo menos uma dessas classes</span><span class="opt-pts">4pt</span></label>
+      </div>
+      <div class="obs">Para fabricantes de ingredientes, coprodutos, produtos mastigáveis, alimentos e aditivos, a pontuação é <strong>zero</strong>.</div>
+    </section>
+
+    <!-- FATOR 6: Uso de medicamentos (peso 4) -->
+    <section class="card" data-section="2" data-fator="6">
+      <h2>Fator 6 — Autorização para uso de medicamentos <span class="badge">Peso 4</span></h2>
+      <p class="desc">Possui autorização do MAPA para uso de medicamentos veterinários (não conta autorização exclusiva para homeopáticos).</p>
+      <div class="radio-row">
+        <label class="opt"><input type="radio" name="f6" value="1"><span class="opt-content"><strong>Não</strong> possui ou usa apenas homeopáticos</span><span class="opt-pts">1pt</span></label>
+        <label class="opt"><input type="radio" name="f6" value="4"><span class="opt-content"><strong>Sim</strong>, possui autorização para uso de medicamentos</span><span class="opt-pts">4pt</span></label>
+      </div>
+      <div class="obs">Para fabricantes de ingredientes, coprodutos, produtos mastigáveis, alimentos e aditivos, a pontuação é <strong>zero</strong>.</div>
+    </section>
+
+    <!-- =================== ETAPA 3 — Complexidade do processo =================== -->
+    <section class="card" data-section="3">
+      <h2>Etapa 3 — Complexidade do processo produtivo <span class="badge">Quadro IV</span></h2>
+      <p class="desc">Marque todos os processos desenvolvidos pelo estabelecimento. Os pontos são somados ao resultado da Etapa 2.</p>
+
+      <label class="opt"><input type="checkbox" name="c" value="1"><span class="opt-content"><strong>Complexidade 1</strong><small>Moagem, seleção, limpeza, fracionamento, processamentos físicos simples (trituração, brunimento, prensagem, emblocamento) ou térmicos simples (cocção, desidratação, parboilização).</small></span><span class="opt-pts">1pt</span></label>
+
+      <label class="opt"><input type="checkbox" name="c" value="5"><span class="opt-content"><strong>Complexidade 2</strong><small>Dosagem e homogeneização de sólidos ou líquidos.</small></span><span class="opt-pts">5pt</span></label>
+
+      <label class="opt"><input type="checkbox" name="c" value="10"><span class="opt-content"><strong>Complexidade 3</strong><small>Outros processamentos físicos: filtração, ultrafiltração, atomização, micronização, centrifugação, aspersão, peletização sem condicionamento prévio.</small></span><span class="opt-pts">10pt</span></label>
+
+      <label class="opt"><input type="checkbox" name="c" value="10"><span class="opt-content"><strong>Complexidade 4</strong><small>Processamentos térmicos: secagem em estufas, tostação, peletização com condicionamento prévio, expansão, extrusão, fervura, cozimento em estufas.</small></span><span class="opt-pts">10pt</span></label>
+
+      <label class="opt"><input type="checkbox" name="c" value="20"><span class="opt-content"><strong>Complexidade 5</strong><small>Outros processamentos térmicos: pasteurização, cocção em digestores, esterilização, autoclavagem, calcinação, secagem em fornos rotativos ou estáticos.</small></span><span class="opt-pts">20pt</span></label>
+
+      <label class="opt"><input type="checkbox" name="c" value="10"><span class="opt-content"><strong>Complexidade 6</strong><small>Processamentos químicos/enzimáticos (solvatação, floculação, hidrólise, transesterificação, extração química/enzimática, degomagem, dessolventização) e biológicos (fermentação, multiplicação celular, extração de ácidos, aminoácidos, vitaminas, enzimas).</small></span><span class="opt-pts">10pt</span></label>
+
+      <label class="opt"><input type="checkbox" name="c" value="17"><span class="opt-content"><strong>Complexidade 7</strong><small>Recebe e processa matéria-prima de origem animal, exceto lácteos, derivados lácteos, ovos e ovoprodutos.</small></span><span class="opt-pts">17pt</span></label>
+
+      <div class="obs">Somatório de complexidade: <strong id="c-soma">0</strong> pontos.</div>
+    </section>
+
+    <div class="actions">
+      <button type="button" class="btn-secondary" onclick="limparFormulario()">Limpar</button>
+      <button type="button" class="btn-primary" onclick="calcularRisco()">Calcular Risco Intrínseco</button>
+    </div>
+  </form>
+
+  <!-- =================== ETAPA 4 — Resultado =================== -->
+  <section id="resultado">
+    <!-- Área que vai para o PDF/impressão -->
+    <div id="print-area">
+      <!-- Cabeçalho que aparece apenas no PDF -->
+      <div class="print-header">
+        <strong>DAL CERO CONSULTORIA</strong>
+        <span class="sub">Relatório de Risco Intrínseco — Alimentação Animal — SDA/MAPA</span>
+      </div>
+
+      <div class="result-card" id="resultado-conteudo">
+        <div class="result-header">
+          <div class="empresa">Estabelecimento: <strong id="res-empresa">—</strong></div>
+          <h2>Resultado do Risco Intrínseco</h2>
+          <div style="font-size:12px;color:#888;margin-top:4px">Avaliado em <span id="res-data"></span></div>
+        </div>
+
+        <div class="score-box">
+          <div class="pts-label">Pontuação Total</div>
+          <div class="pts" id="res-pts">0</div>
+          <div class="classif" id="res-classif">—</div>
+          <div class="nivel" id="res-nivel">—</div>
+          <div class="frequencia" id="res-freq">—</div>
+        </div>
+
+        <div class="breakdown">
+          <h3>Detalhamento da pontuação</h3>
+          <table>
+            <thead>
+              <tr><th>Fator de risco</th><th>Classificação</th><th style="text-align:center">Pts</th><th style="text-align:center">Peso</th><th style="text-align:right">Total</th></tr>
+            </thead>
+            <tbody id="res-tabela"></tbody>
+          </table>
+        </div>
+
+        <div class="legend-table">
+          <h3 style="color:var(--azul-noite);font-size:14px;margin:18px 0 8px">Tabela de classificação (Quadro V)</h3>
+          <table id="legenda-tabela">
+            <thead><tr><th>Pontuação</th><th>Classificação</th><th>Nível</th><th>Frequência mínima (RR Grau 0)</th></tr></thead>
+            <tbody>
+              <tr data-range="A"><td>&lt; 50</td><td>A</td><td>Baixíssimo</td><td>1 fiscalização a cada 36 meses</td></tr>
+              <tr data-range="B"><td>51 – 68</td><td>B</td><td>Baixo</td><td>1 fiscalização a cada 30 meses</td></tr>
+              <tr data-range="C"><td>69 – 84</td><td>C</td><td>Médio</td><td>1 fiscalização a cada 24 meses</td></tr>
+              <tr data-range="D"><td>85 – 103</td><td>D</td><td>Alto</td><td>1 fiscalização a cada 18 meses</td></tr>
+              <tr data-range="E"><td>&gt; 104</td><td>E</td><td>Altíssimo</td><td>1 fiscalização a cada 12 meses</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div style="margin-top:24px;padding:14px 16px;background:#f5f7fb;border-radius:8px;font-size:12px;color:#666;border-left:3px solid var(--azul-claro)">
+          <strong>Importante:</strong> Esta é uma estimativa baseada no Manual SDA/MAPA — Caracterização do Risco (v.3, 2025). A frequência mínima informada considera RR = Grau 0. Caso haja descumprimentos enquadrados como Grau 1 ou 2 do RR (Quadro VIII do manual), a frequência será majorada. O cálculo oficial é realizado pelo serviço de inspeção competente.
+        </div>
+      </div>
+    </div>
+
+    <!-- =================== BLOCO LGPD — Captura de leads opcional =================== -->
+    <div class="lead-card" id="lead-card">
+      <h3>📧 Quer receber este relatório por e-mail e falar com a Dal Cero?</h3>
+      <p class="lead-desc">Preenchimento <strong>opcional</strong>. Ao enviar, seus dados serão compartilhados com a Dal Cero Consultoria para envio do relatório e eventual contato comercial.</p>
+
+      <div class="lead-grid">
+        <div class="input-group">
+          <label for="lead-nome">Seu nome *</label>
+          <input type="text" id="lead-nome" placeholder="Nome completo">
+        </div>
+        <div class="input-group">
+          <label for="lead-email">E-mail *</label>
+          <input type="email" id="lead-email" placeholder="seu@email.com">
+        </div>
+        <div class="input-group">
+          <label for="lead-telefone">Telefone (com DDD)</label>
+          <input type="tel" id="lead-telefone" placeholder="(11) 99999-9999">
+        </div>
+        <div class="input-group">
+          <label for="lead-cargo">Cargo / função</label>
+          <input type="text" id="lead-cargo" placeholder="Ex: Responsável técnico">
+        </div>
+      </div>
+
+      <div class="consent">
+        <label style="display:flex;gap:10px;align-items:flex-start;cursor:pointer">
+          <input type="checkbox" id="lead-consent" style="margin-top:2px;flex-shrink:0;width:18px;height:18px;accent-color:var(--azul-forte)">
+          <span><strong>Autorizo</strong>, conforme a LGPD (Lei 13.709/2018), o tratamento dos dados pessoais informados (nome, e-mail, telefone, cargo e empresa) e do resultado deste questionário pela <strong>Dal Cero Consultoria</strong>, com a finalidade de envio do relatório e eventual contato comercial sobre serviços de consultoria regulatória. Posso solicitar exclusão a qualquer momento através do e-mail regulatorio@dalceroconsultoria.com.br.</span>
+        </label>
+      </div>
+
+      <button type="button" class="btn-primary" onclick="enviarLead()" style="width:100%">Enviar dados à Dal Cero</button>
+      <div id="lead-status" class="lead-status"></div>
+    </div>
+
+    <div class="actions" id="pdf-actions">
+      <button type="button" class="btn-secondary" onclick="voltarFormulario()">↑ Voltar ao formulário</button>
+      <button type="button" class="btn-gold" onclick="gerarPDF()">📄 Baixar / Imprimir relatório (PDF)</button>
+    </div>
+  </section>
+</main>
+
+<footer>
+  © 2026 Dal Cero Consultoria · regulatorio@dalceroconsultoria.com.br · Ferramenta baseada no Manual SDA/MAPA · <a href="https://wikisda.agricultura.gov.br/pt-br/Inspe%C3%A7%C3%A3o-Animal/Alimenta%C3%A7%C3%A3o-Animal/caracterizacao_risco_alimentacao_animal" target="_blank">Ver manual</a>
+</footer>
+
+<script>
+// ============== CONFIGURAÇÃO ==============
+// E-mail Dal Cero que receberá os leads (via serviço FormSubmit.co — gratuito, sem backend)
+// ATENÇÃO: na primeira submissão, FormSubmit envia um e-mail de ATIVAÇÃO para este endereço.
+// É preciso clicar no link de confirmação para começar a receber os leads.
+const DAL_CERO_EMAIL = 'regulatorio@dalceroconsultoria.com.br';
+const FORMSUBMIT_URL = 'https://formsubmit.co/ajax/' + DAL_CERO_EMAIL;
+
+// Variável global com o último cálculo feito (para usar no envio)
+let ultimoCalculo = null;
+
+// ============== LÓGICA DE CÁLCULO ==============
+
+// Auto-classificação do volume de produção pelo input numérico
+document.getElementById('volume').addEventListener('input',function(e){
+  const v = parseFloat(e.target.value);
+  if(isNaN(v)) return;
+  let classe = null;
+  if(v <= 1000) classe = '1';
+  else if(v <= 10000) classe = '2';
+  else if(v <= 35000) classe = '3';
+  else classe = '4';
+  const radio = document.querySelector('input[name="f1"][value="'+classe+'"]');
+  if(radio){radio.checked = true;}
+});
+
+// Recalcula soma do Fator 2 em tempo real
+function atualizaSomaF2(){
+  const inputs = document.querySelectorAll('input[name^="f2_"]:checked');
+  let s = 0;
+  inputs.forEach(i => s += parseInt(i.value));
+  document.getElementById('f2-soma').textContent = s;
+}
+document.querySelectorAll('input[name^="f2_"]').forEach(i => i.addEventListener('change', atualizaSomaF2));
+
+// Recalcula soma do Fator 4
+function atualizaSomaF4(){
+  const inputs = document.querySelectorAll('input[name="f4"]:checked');
+  let s = 0;
+  inputs.forEach(i => s += parseInt(i.value));
+  document.getElementById('f4-soma').textContent = s;
+}
+document.querySelectorAll('input[name="f4"]').forEach(i => i.addEventListener('change', atualizaSomaF4));
+
+// Recalcula soma de complexidade
+function atualizaSomaC(){
+  const inputs = document.querySelectorAll('input[name="c"]:checked');
+  let s = 0;
+  inputs.forEach(i => s += parseInt(i.value));
+  document.getElementById('c-soma').textContent = s;
+}
+document.querySelectorAll('input[name="c"]').forEach(i => i.addEventListener('change', atualizaSomaC));
+
+// Classifica o Fator 2 conforme tabela 2
+function classificaF2(soma){
+  if(soma <= 5) return {pts:1, nome:'Baixo'};
+  if(soma <= 10) return {pts:2, nome:'Médio'};
+  if(soma <= 15) return {pts:3, nome:'Alto'};
+  return {pts:4, nome:'Altíssimo'};
+}
+
+// Classifica o Fator 4 conforme tabela 4
+function classificaF4(soma){
+  if(soma <= 1) return {pts:1, nome:'Baixo'};
+  if(soma <= 5) return {pts:2, nome:'Médio'};
+  if(soma <= 8) return {pts:3, nome:'Alto'};
+  return {pts:4, nome:'Altíssimo'};
+}
+
+// Mapa nomes de classificação (1-4)
+const NOMES_CLASSIF = {1:'Baixo',2:'Médio',3:'Alto',4:'Altíssimo'};
+
+// ============== AÇÃO PRINCIPAL ==============
+
+function calcularRisco(){
+  // Coleta valores
+  const f1Radio = document.querySelector('input[name="f1"]:checked');
+  if(!f1Radio){alert('Selecione ou informe o volume de produção (Fator 1).');return;}
+
+  let somaF2 = 0;
+  document.querySelectorAll('input[name^="f2_"]:checked').forEach(i => somaF2 += parseInt(i.value));
+  if(somaF2 === 0){alert('Marque pelo menos uma categoria de produto (Fator 2).');return;}
+  const c2 = classificaF2(somaF2);
+
+  const f3Radio = document.querySelector('input[name="f3"]:checked');
+  if(!f3Radio){alert('Selecione uma opção para o Fator 3.');return;}
+
+  let somaF4 = 0;
+  document.querySelectorAll('input[name="f4"]:checked').forEach(i => somaF4 += parseInt(i.value));
+  if(somaF4 === 0){alert('Marque pelo menos uma espécie (Fator 4).');return;}
+  const c4 = classificaF4(somaF4);
+
+  const f5Radio = document.querySelector('input[name="f5"]:checked');
+  if(!f5Radio){alert('Selecione uma opção para o Fator 5.');return;}
+
+  const f6Radio = document.querySelector('input[name="f6"]:checked');
+  if(!f6Radio){alert('Selecione uma opção para o Fator 6.');return;}
+
+  // Pesos
+  const fatores = [
+    {nome:'1. Volume de produção/comercialização', pts:parseInt(f1Radio.value), peso:5},
+    {nome:'2. Tipos e categorias de produtos ('+somaF2+' pts)', pts:c2.pts, peso:6, classifNome:c2.nome},
+    {nome:'3. Elaboração para animais de produção', pts:parseInt(f3Radio.value), peso:5},
+    {nome:'4. Quantidade de espécies ('+somaF4+' pts)', pts:c4.pts, peso:4, classifNome:c4.nome},
+    {nome:'5. Uso de melhoradores de desempenho', pts:parseInt(f5Radio.value), peso:2},
+    {nome:'6. Autorização para uso de medicamentos', pts:parseInt(f6Radio.value), peso:4}
+  ];
+
+  let totalEtapa2 = 0;
+  fatores.forEach(f => { f.total = f.pts * f.peso; totalEtapa2 += f.total; });
+
+  // Etapa 3: complexidade
+  let totalC = 0;
+  const complexidades = [];
+  document.querySelectorAll('input[name="c"]:checked').forEach(i => {
+    totalC += parseInt(i.value);
+    const lbl = i.closest('label').querySelector('strong');
+    if(lbl) complexidades.push(lbl.textContent);
+  });
+
+  const totalGeral = totalEtapa2 + totalC;
+
+  // Classificação Quadro V
+  let classif, nivel, freq, classKey;
+  if(totalGeral < 50){classif='A'; nivel='Baixíssimo'; freq='1 fiscalização a cada 36 meses'; classKey='A';}
+  else if(totalGeral <= 68){classif='B'; nivel='Baixo'; freq='1 fiscalização a cada 30 meses'; classKey='B';}
+  else if(totalGeral <= 84){classif='C'; nivel='Médio'; freq='1 fiscalização a cada 24 meses'; classKey='C';}
+  else if(totalGeral <= 103){classif='D'; nivel='Alto'; freq='1 fiscalização a cada 18 meses'; classKey='D';}
+  else {classif='E'; nivel='Altíssimo'; freq='1 fiscalização a cada 12 meses'; classKey='E';}
+
+  // Renderiza resultado
+  const nomeEmpresa = document.getElementById('empresa').value || '(não informado)';
+  document.getElementById('res-empresa').textContent = nomeEmpresa;
+  const hoje = new Date();
+  const dataFormatada = hoje.toLocaleDateString('pt-BR') + ' às ' + hoje.toLocaleTimeString('pt-BR').slice(0,5);
+  document.getElementById('res-data').textContent = dataFormatada;
+  document.getElementById('res-pts').textContent = totalGeral;
+  document.getElementById('res-classif').textContent = 'Classificação ' + classif;
+  document.getElementById('res-nivel').textContent = nivel;
+  document.getElementById('res-freq').textContent = freq;
+
+  // Tabela detalhada
+  const tbody = document.getElementById('res-tabela');
+  tbody.innerHTML = '';
+  fatores.forEach(f => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = '<td>'+f.nome+'</td><td>'+(f.classifNome || NOMES_CLASSIF[f.pts])+'</td><td style="text-align:center">'+f.pts+'</td><td style="text-align:center">'+f.peso+'</td><td class="num">'+f.total+'</td>';
+    tbody.appendChild(tr);
+  });
+  const subTr = document.createElement('tr');
+  subTr.innerHTML = '<td colspan="4" style="text-align:right;color:#666">Subtotal Etapa 2</td><td class="num">'+totalEtapa2+'</td>';
+  tbody.appendChild(subTr);
+
+  const compTr = document.createElement('tr');
+  compTr.innerHTML = '<td colspan="4" style="text-align:right;color:#666">Etapa 3 — Complexidade do processo</td><td class="num">+'+totalC+'</td>';
+  tbody.appendChild(compTr);
+
+  const totTr = document.createElement('tr');
+  totTr.className = 'total';
+  totTr.innerHTML = '<td colspan="4">TOTAL (Risco Intrínseco)</td><td style="text-align:right">'+totalGeral+'</td>';
+  tbody.appendChild(totTr);
+
+  // Destaca linha da legenda
+  document.querySelectorAll('#legenda-tabela tr').forEach(tr => tr.classList.remove('match'));
+  const matchTr = document.querySelector('#legenda-tabela tr[data-range="'+classKey+'"]');
+  if(matchTr) matchTr.classList.add('match');
+
+  // Salva resumo para o envio
+  ultimoCalculo = {
+    empresa: nomeEmpresa,
+    cnpj: document.getElementById('cnpj').value || '(não informado)',
+    responsavel: document.getElementById('responsavel').value || '(não informado)',
+    data: dataFormatada,
+    pontuacao_total: totalGeral,
+    classificacao: classif,
+    nivel: nivel,
+    frequencia: freq,
+    fatores: fatores.map(f => f.nome + ': ' + (f.classifNome || NOMES_CLASSIF[f.pts]) + ' (' + f.total + ' pts)').join(' | '),
+    complexidades: complexidades.join(', ') || 'nenhuma',
+    pts_etapa2: totalEtapa2,
+    pts_complexidade: totalC
+  };
+
+  // Mostra resultado e atualiza progresso
+  document.getElementById('resultado').style.display = 'block';
+  document.querySelectorAll('.progress .step').forEach(s => {
+    const n = parseInt(s.dataset.step);
+    s.classList.remove('active','done');
+    if(n < 4) s.classList.add('done');
+    if(n === 4) s.classList.add('active');
+  });
+
+  // Scroll suave
+  document.getElementById('resultado').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function voltarFormulario(){
+  document.querySelector('main').scrollIntoView({behavior:'smooth',block:'start'});
+  document.querySelectorAll('.progress .step').forEach(s => {
+    const n = parseInt(s.dataset.step);
+    s.classList.remove('active','done');
+    if(n === 1) s.classList.add('active');
+  });
+}
+
+function limparFormulario(){
+  if(!confirm('Limpar todos os campos do formulário?')) return;
+  document.getElementById('form-risco').reset();
+  document.getElementById('f2-soma').textContent = '0';
+  document.getElementById('f4-soma').textContent = '0';
+  document.getElementById('c-soma').textContent = '0';
+  document.getElementById('resultado').style.display = 'none';
+  document.querySelectorAll('.progress .step').forEach(s => {
+    s.classList.remove('active','done');
+    if(parseInt(s.dataset.step) === 1) s.classList.add('active');
+  });
+  ultimoCalculo = null;
+  voltarFormulario();
+}
+
+// ============== GERAÇÃO DE PDF (via impressão nativa do navegador) ==============
+function gerarPDF(){
+  // window.print abre o diálogo nativo de impressão
+  // O usuário escolhe "Salvar como PDF" como destino
+  // Funciona em todos os navegadores modernos, sem dependência de biblioteca
+  window.print();
+}
+
+// ============== ENVIO DE LEAD (LGPD-compliant) ==============
+function enviarLead(){
+  const statusEl = document.getElementById('lead-status');
+  statusEl.className = 'lead-status';
+  statusEl.textContent = '';
+
+  if(!ultimoCalculo){
+    statusEl.className = 'lead-status error';
+    statusEl.textContent = 'Calcule o risco antes de enviar os dados.';
+    return;
+  }
+
+  const nome = document.getElementById('lead-nome').value.trim();
+  const email = document.getElementById('lead-email').value.trim();
+  const telefone = document.getElementById('lead-telefone').value.trim();
+  const cargo = document.getElementById('lead-cargo').value.trim();
+  const consent = document.getElementById('lead-consent').checked;
+
+  if(!nome || !email){
+    statusEl.className = 'lead-status error';
+    statusEl.textContent = 'Preencha pelo menos nome e e-mail.';
+    return;
+  }
+  if(!consent){
+    statusEl.className = 'lead-status error';
+    statusEl.textContent = 'É necessário aceitar o consentimento LGPD para enviar os dados.';
+    return;
+  }
+
+  statusEl.className = 'lead-status loading';
+  statusEl.textContent = 'Enviando…';
+
+  const dados = {
+    _subject: '[Calculadora RI] Novo lead: ' + nome + ' — ' + ultimoCalculo.empresa,
+    _template: 'table',
+    _captcha: 'false',
+    'Nome do contato': nome,
+    'E-mail': email,
+    'Telefone': telefone || '(não informado)',
+    'Cargo': cargo || '(não informado)',
+    'Empresa': ultimoCalculo.empresa,
+    'CNPJ / Registro MAPA': ultimoCalculo.cnpj,
+    'Responsável pelo preenchimento': ultimoCalculo.responsavel,
+    'Data do cálculo': ultimoCalculo.data,
+    'PONTUAÇÃO TOTAL': ultimoCalculo.pontuacao_total,
+    'CLASSIFICAÇÃO': ultimoCalculo.classificacao + ' — ' + ultimoCalculo.nivel,
+    'Frequência mínima estimada': ultimoCalculo.frequencia,
+    'Pontuação Etapa 2 (fatores)': ultimoCalculo.pts_etapa2,
+    'Pontuação Etapa 3 (complexidade)': ultimoCalculo.pts_complexidade,
+    'Fatores': ultimoCalculo.fatores,
+    'Complexidades marcadas': ultimoCalculo.complexidades,
+    'Consentimento LGPD': 'SIM — aceito em ' + new Date().toLocaleString('pt-BR')
+  };
+
+  fetch(FORMSUBMIT_URL, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json','Accept':'application/json'},
+    body: JSON.stringify(dados)
+  })
+  .then(r => r.json())
+  .then(json => {
+    if(json.success === 'true' || json.success === true){
+      statusEl.className = 'lead-status success';
+      statusEl.innerHTML = '✓ Dados enviados com sucesso! A Dal Cero Consultoria entrará em contato pelo e-mail informado.';
+      // Desabilita o botão após sucesso
+      document.querySelector('#lead-card button').disabled = true;
+      document.querySelector('#lead-card button').style.opacity = '.5';
+    } else {
+      statusEl.className = 'lead-status error';
+      statusEl.textContent = 'Não foi possível enviar agora. Tente novamente ou escreva para regulatorio@dalceroconsultoria.com.br';
+    }
+  })
+  .catch(err => {
+    statusEl.className = 'lead-status error';
+    statusEl.textContent = 'Erro de conexão. Tente novamente ou escreva para regulatorio@dalceroconsultoria.com.br';
+    console.error(err);
+  });
+}
+</script>
+
+</body>
+</html>
