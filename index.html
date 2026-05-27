@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora de Risco · Dal Cero Consultoria</title>
+<meta name="description" content="Calcule o Risco Intrínseco (RI) e o Risco Regulatório (RR) do seu estabelecimento de alimentação animal, conforme manual SDA/MAPA.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --azul-claro:#177fe5;--azul-medio:#4399FF;--azul-forte:#0043D8;--azul-escuro:#003B91;
+    --azul-noite:#041F47;--azul-hero:#0030B5;--dourado:#E8B461;--dourado-claro:#f3d394;
+    --preto:#000000;--cinza:#eaeaea;--cinza-fundo:#f5f6f8;--cinza-borda:#e2e6ed;
+    --cinza-texto:#3a3a3a;--cinza-suave:#8a93a3;--branco:#ffffff;
+    --vermelho:#d9534f;--vermelho-fundo:#fde2e2;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:'Inter',-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--cinza-fundo);color:#222;line-height:1.55;min-height:100vh;-webkit-font-smoothing:antialiased}
+
+  header{background:var(--preto);color:var(--branco);padding:16px 32px}
+  .header-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:14px}
+  .brand img{height:34px;width:34px;flex-shrink:0;display:block}
+  .brand .logo-texto{font-weight:800;font-size:15px;letter-spacing:2.5px;color:var(--branco);line-height:1;white-space:nowrap}
+  .header-tagline{font-size:12px;color:#a8b0c0;letter-spacing:3px;text-transform:uppercase;font-weight:500}
+
+  .hero{background:linear-gradient(135deg,#0030B5 0%,#0043D8 50%,#1559E8 100%);color:var(--branco);padding:60px 24px 80px;text-align:center;position:relative;overflow:hidden}
+  .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 80% 20%, rgba(255,255,255,.08) 0%, transparent 50%);pointer-events:none}
+  .hero-inner{max-width:780px;margin:0 auto;position:relative;z-index:1}
+  .hero .badge-pill{display:inline-block;background:rgba(232,180,97,.18);border:1.5px solid rgba(232,180,97,.5);color:var(--dourado-claro);padding:8px 22px;border-radius:30px;font-size:12px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:24px}
+  .hero h1{font-size:46px;font-weight:800;line-height:1.1;letter-spacing:-1px;margin-bottom:18px;color:var(--branco)}
+  .hero .lead{font-size:17px;color:#cdd6ec;max-width:640px;margin:0 auto;line-height:1.6}
+  .hero .lead strong{color:var(--dourado-claro);font-weight:600}
+  .hero .alert-banner{background:rgba(0,30,90,.45);border-left:3px solid var(--dourado);border-radius:8px;padding:14px 20px;max-width:620px;margin:28px auto 0;display:flex;align-items:center;gap:12px;text-align:left;font-size:13px;color:#d8dfee}
+  .hero .alert-banner svg{flex-shrink:0;color:var(--dourado)}
+
+  main{max-width:920px;margin:-50px auto 0;padding:0 24px 80px;position:relative;z-index:2}
+
+  .card{background:var(--branco);border-radius:14px;padding:36px 40px;margin-bottom:20px;box-shadow:0 4px 22px rgba(4,31,71,.08)}
+  .section-title{color:var(--azul-forte);font-size:13px;font-weight:700;letter-spacing:3px;text-transform:uppercase;margin-bottom:6px}
+  .section-title.rr-title{color:var(--vermelho)}
+  .section-desc{color:#6b7280;font-size:14px;margin-bottom:24px}
+  .section-divider{height:1px;background:var(--cinza-borda);margin:32px 0}
+
+  .question{margin-bottom:28px}
+  .question:last-child{margin-bottom:0}
+  .question-head{display:flex;align-items:flex-start;gap:12px;margin-bottom:16px}
+  .question-num{background:var(--azul-forte);color:var(--branco);width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+  .question-num.rr-num{background:var(--vermelho)}
+  .question-text{font-size:16px;font-weight:600;color:#1a2438;line-height:1.4;flex:1}
+  .question-help{font-size:13px;color:#6b7280;margin:-8px 0 14px 40px}
+
+  .input-group{margin-bottom:18px}
+  .input-group label{display:block;font-size:14px;font-weight:600;color:#1a2438;margin-bottom:8px}
+  .input-group input,.input-group select{width:100%;padding:12px 16px;border:1.5px solid var(--cinza-borda);border-radius:10px;font-size:15px;font-family:inherit;background:var(--branco);transition:border .15s,box-shadow .15s}
+  .input-group input:focus,.input-group select:focus{outline:none;border-color:var(--azul-forte);box-shadow:0 0 0 4px rgba(0,67,216,.1)}
+  .input-group .required{color:var(--vermelho)}
+
+  .pill-options{display:flex;gap:10px;flex-wrap:wrap;margin-left:40px}
+  .pill-options.no-indent{margin-left:0}
+  label.pill{flex:1;min-width:120px;display:flex;align-items:center;justify-content:center;gap:8px;padding:14px 18px;background:var(--branco);border:1.5px solid var(--cinza-borda);border-radius:10px;cursor:pointer;font-size:14px;font-weight:500;color:#374151;transition:all .15s;text-align:center;position:relative}
+  label.pill input{position:absolute;opacity:0;width:0;height:0}
+  label.pill:hover{border-color:var(--azul-claro);background:#f0f6ff}
+  label.pill:has(input:checked){background:var(--azul-forte);color:var(--branco);border-color:var(--azul-forte);box-shadow:0 4px 12px rgba(0,67,216,.25)}
+  label.pill .pts{font-size:11px;background:rgba(0,0,0,.15);padding:2px 7px;border-radius:4px;font-weight:700}
+  label.pill:has(input:checked) .pts{background:rgba(255,255,255,.25)}
+
+  .check-list{display:flex;flex-direction:column;gap:6px;margin-left:40px}
+  .check-list.no-indent{margin-left:0}
+  label.check{display:flex;align-items:flex-start;gap:12px;padding:12px 16px;background:#fafbfc;border:1.5px solid var(--cinza-borda);border-radius:10px;cursor:pointer;transition:all .15s;font-size:14px;color:#1a2438}
+  label.check:hover{border-color:var(--azul-claro);background:#f0f6ff}
+  label.check:has(input:checked){background:#e7f0fd;border-color:var(--azul-forte)}
+  label.check input{margin-top:2px;flex-shrink:0;width:18px;height:18px;accent-color:var(--azul-forte);cursor:pointer}
+  label.check .check-content{flex:1}
+  label.check .check-content small{display:block;color:#6b7280;font-size:12px;margin-top:3px;font-weight:400;line-height:1.4}
+  label.check .check-pts{font-size:11px;background:var(--azul-noite);color:var(--branco);padding:2px 7px;border-radius:4px;font-weight:700;flex-shrink:0;margin-top:2px}
+  label.check.rr-item:has(input:checked){background:#ffeaea;border-color:var(--vermelho)}
+  label.check .grau-tag{font-size:10px;font-weight:800;padding:3px 8px;border-radius:4px;flex-shrink:0;margin-top:2px;letter-spacing:.5px}
+  label.check .grau-1{background:#fef3c7;color:#92400e}
+  label.check .grau-2{background:#fee2e2;color:#991b1b}
+
+  .group-block{margin-bottom:22px;padding:16px 18px;background:#fafbfc;border-radius:10px;border:1px solid var(--cinza-borda)}
+  .group-block .group-title{font-weight:700;color:var(--azul-forte);font-size:12px;margin-bottom:12px;text-transform:uppercase;letter-spacing:1.5px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+  .group-block .group-title.rr-group{color:var(--vermelho)}
+  .group-block .pts-tag{background:var(--dourado);color:#5a3c0c;font-size:11px;padding:3px 9px;border-radius:6px;font-weight:700;text-transform:none;letter-spacing:0}
+  .group-block label.check{background:var(--branco)}
+
+  .obs{font-size:12px;color:#6b7280;background:#fef9ec;border-left:3px solid var(--dourado);padding:10px 14px;border-radius:6px;margin-top:14px}
+  .obs strong{color:#1a2438}
+
+  .actions{display:flex;justify-content:space-between;gap:12px;margin-top:32px;flex-wrap:wrap}
+  button{padding:14px 32px;font-size:15px;font-weight:600;border:none;border-radius:10px;cursor:pointer;transition:all .15s;font-family:inherit}
+  .btn-primary{background:var(--azul-forte);color:var(--branco);box-shadow:0 4px 14px rgba(0,67,216,.3)}
+  .btn-primary:hover{background:var(--azul-escuro);transform:translateY(-1px);box-shadow:0 6px 18px rgba(0,67,216,.4)}
+  .btn-secondary{background:var(--branco);color:#374151;border:1.5px solid var(--cinza-borda)}
+  .btn-secondary:hover{background:#f5f6f8;border-color:#c0c8d4}
+  .btn-rr{background:var(--vermelho);color:var(--branco);box-shadow:0 4px 14px rgba(217,83,79,.3)}
+  .btn-rr:hover{background:#c44640;transform:translateY(-1px)}
+  .btn-large{padding:18px 40px;font-size:16px;width:100%}
+
+  /* GATE DE ACESSO */
+  #gate-acesso{display:block}
+  .gate-card{background:var(--branco);border-radius:14px;padding:40px;margin-bottom:20px;box-shadow:0 8px 28px rgba(4,31,71,.12);border-top:5px solid var(--azul-forte)}
+  .gate-card h2{color:#1a2438;font-size:24px;font-weight:800;margin-bottom:8px;letter-spacing:-.3px}
+  .gate-card .gate-sub{color:#6b7280;font-size:14px;margin-bottom:24px}
+  .gate-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
+  @media (max-width:600px){.gate-grid{grid-template-columns:1fr}}
+  .gate-consent{background:#f5f6f8;border-left:3px solid var(--dourado);padding:14px 16px;border-radius:8px;font-size:12px;color:#555;margin-bottom:18px;line-height:1.6}
+  .gate-consent strong{color:#1a2438}
+  .gate-status{margin-top:14px;padding:12px 16px;border-radius:8px;font-size:13px;display:none;font-weight:500}
+  .gate-status.error{background:var(--vermelho-fundo);color:#a52a2a;border-left:4px solid var(--vermelho);display:block}
+
+  /* CONTEÚDO DA CALCULADORA — escondido até o gate ser preenchido */
+  #conteudo-calculadora{display:none}
+
+  /* Resultado */
+  #resultado{display:none}
+  #etapa-rr{display:none}
+  #resultado-final{display:none}
+
+  .result-card{background:var(--branco);border-radius:14px;padding:40px;box-shadow:0 8px 28px rgba(4,31,71,.1);margin-bottom:20px}
+  .result-header{text-align:center;margin-bottom:28px;padding-bottom:24px;border-bottom:1px solid var(--cinza-borda)}
+  .result-header .tag-pill{display:inline-block;background:rgba(0,67,216,.08);color:var(--azul-forte);padding:5px 14px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px}
+  .result-header .tag-pill.rr{background:rgba(217,83,79,.08);color:var(--vermelho)}
+  .result-header h2{color:#1a2438;font-size:28px;font-weight:800;letter-spacing:-.5px}
+  .result-header .empresa{font-size:13px;color:#6b7280;margin-top:8px}
+  .result-header .empresa strong{color:#1a2438}
+
+  .score-box{background:linear-gradient(135deg,#0030B5 0%,#0043D8 100%);color:var(--branco);border-radius:14px;padding:36px;text-align:center;margin-bottom:28px}
+  .score-box .pts{font-size:64px;font-weight:900;line-height:1;letter-spacing:-2px}
+  .score-box .pts-label{font-size:12px;text-transform:uppercase;letter-spacing:3px;opacity:.85;margin-bottom:14px;font-weight:600}
+  .score-box .classif{display:inline-block;background:var(--dourado);color:#3d2806;font-weight:800;font-size:14px;padding:8px 22px;border-radius:30px;margin-top:18px;letter-spacing:1.5px}
+  .score-box .nivel{font-size:26px;font-weight:800;margin-top:14px}
+  .score-box .frequencia{font-size:14px;opacity:.95;margin-top:8px}
+
+  .grau-box{background:linear-gradient(135deg,#c44640 0%,#d9534f 100%);color:var(--branco);border-radius:14px;padding:36px;text-align:center;margin-bottom:28px}
+  .grau-box .grau-label{font-size:12px;text-transform:uppercase;letter-spacing:3px;opacity:.85;margin-bottom:14px;font-weight:600}
+  .grau-box .grau-num{font-size:80px;font-weight:900;line-height:1}
+  .grau-box .grau-desc{font-size:18px;font-weight:700;margin-top:8px}
+
+  .freq-final-box{background:linear-gradient(135deg,#003B91 0%,#0030B5 100%);color:var(--branco);border-radius:14px;padding:36px;text-align:center;margin-bottom:28px}
+  .freq-final-box .freq-label{font-size:13px;text-transform:uppercase;letter-spacing:3px;opacity:.85;margin-bottom:12px;font-weight:600}
+  .freq-final-box .freq-valor{font-size:36px;font-weight:900;line-height:1.1}
+  .freq-final-box .freq-sub{font-size:13px;opacity:.85;margin-top:10px}
+
+  .breakdown h3{color:var(--azul-forte);font-size:13px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:14px}
+  .breakdown table{width:100%;border-collapse:collapse;font-size:13px}
+  .breakdown th,.breakdown td{padding:12px 10px;text-align:left;border-bottom:1px solid var(--cinza-borda)}
+  .breakdown th{background:#f5f6f8;color:#1a2438;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:1px}
+  .breakdown td.num{text-align:right;font-weight:700;color:var(--azul-forte)}
+  .breakdown tr.total td{background:#e7f0fd;font-weight:800;color:var(--azul-escuro);font-size:14px;border-top:2px solid var(--azul-forte)}
+
+  .rr-items-list{margin-top:16px}
+  .rr-items-list h4{color:var(--vermelho);font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px}
+  .rr-items-list ul{list-style:none;padding:0}
+  .rr-items-list li{padding:10px 14px;background:#fff8f8;border-left:3px solid var(--vermelho);border-radius:6px;margin-bottom:6px;font-size:13px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+
+  .legend-table{margin-top:24px}
+  .legend-table table{width:100%;border-collapse:collapse;font-size:12px}
+  .legend-table th,.legend-table td{padding:9px;text-align:left;border:1px solid var(--cinza-borda)}
+  .legend-table th{background:#f5f6f8;color:#1a2438;font-weight:700}
+  .legend-table tr.match{background:#fef9ec;font-weight:700}
+  .legend-table td.cell-match{background:#d4f4d8;font-weight:700}
+
+  /* STATUS de envio do e-mail */
+  .email-status-card{
+    background:var(--branco);border-radius:14px;padding:32px;margin-bottom:20px;
+    box-shadow:0 4px 22px rgba(4,31,71,.08);text-align:center;
+  }
+  .email-status-card .icon{
+    width:64px;height:64px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;margin:0 auto 14px;
+    font-size:32px;
+  }
+  .email-status-card.loading .icon{background:#e7f0fd;color:var(--azul-forte)}
+  .email-status-card.success .icon{background:#d4f4d8;color:#1f6b2a}
+  .email-status-card.error .icon{background:var(--vermelho-fundo);color:var(--vermelho)}
+  .email-status-card h3{color:#1a2438;font-size:18px;font-weight:800;margin-bottom:6px}
+  .email-status-card p{color:#6b7280;font-size:14px}
+  .email-status-card strong{color:#1a2438}
+
+  /* RODAPÉ COMERCIAL DAL CERO (aparece no resultado e no PDF) */
+  .dal-cero-footer{
+    background:linear-gradient(135deg,#041F47 0%,#0030B5 100%);
+    color:var(--branco);border-radius:14px;padding:36px;margin-bottom:20px;
+  }
+  .dal-cero-footer .pitch-tag{
+    display:inline-block;background:rgba(232,180,97,.2);border:1.5px solid rgba(232,180,97,.5);
+    color:var(--dourado-claro);padding:6px 16px;border-radius:20px;
+    font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;
+  }
+  .dal-cero-footer h3{font-size:22px;font-weight:800;line-height:1.25;margin-bottom:12px;letter-spacing:-.3px}
+  .dal-cero-footer .pitch{font-size:14px;color:#cdd6ec;line-height:1.7;margin-bottom:24px}
+  .dal-cero-footer .pitch strong{color:var(--branco)}
+  .dal-cero-footer .contact-grid{
+    display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;
+  }
+  @media (max-width:600px){.dal-cero-footer .contact-grid{grid-template-columns:1fr}}
+  .dal-cero-footer .contact-item{
+    background:rgba(255,255,255,.06);padding:14px 16px;border-radius:10px;
+    border:1px solid rgba(255,255,255,.1);
+  }
+  .dal-cero-footer .contact-label{
+    font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--dourado-claro);margin-bottom:4px;
+  }
+  .dal-cero-footer .contact-value{font-size:14px;color:var(--branco);word-break:break-word}
+  .dal-cero-footer .contact-value a{color:var(--branco);text-decoration:none}
+  .dal-cero-footer .contact-value a:hover{text-decoration:underline}
+  .dal-cero-footer .address{
+    border-top:1px solid rgba(255,255,255,.15);padding-top:18px;
+    font-size:12px;color:#a8b0c0;text-align:center;line-height:1.6;
+  }
+  .dal-cero-footer .address strong{color:var(--branco);font-size:13px;display:block;margin-bottom:4px;letter-spacing:1px}
+
+  footer{text-align:center;padding:30px 20px;color:#8a93a3;font-size:12px;background:var(--branco);border-top:1px solid var(--cinza-borda)}
+  footer a{color:var(--azul-forte);text-decoration:none;font-weight:500}
+
+  @media (max-width:760px){
+    header{padding:14px 20px}
+    .brand .logo-texto{font-size:12px;letter-spacing:1.5px}
+    .header-tagline{font-size:10px;letter-spacing:2px}
+    .hero{padding:42px 20px 60px}
+    .hero h1{font-size:32px}
+    .hero .lead{font-size:15px}
+    .hero .badge-pill{font-size:10px;padding:6px 16px}
+    main{padding:0 16px 60px;margin-top:-40px}
+    .card,.gate-card{padding:28px 22px}
+    .question-help,.pill-options,.check-list{margin-left:0}
+    .question-head{align-items:center}
+    .pill-options{flex-direction:column}
+    label.pill{min-width:auto}
+    .actions{flex-direction:column-reverse}
+    .actions button{width:100%}
+    .result-card{padding:28px 22px}
+    .result-header h2{font-size:22px}
+    .score-box .pts,.grau-box .grau-num{font-size:52px}
+    .score-box .nivel{font-size:22px}
+    .freq-final-box .freq-valor{font-size:26px}
+    .dal-cero-footer{padding:28px 22px}
+    .dal-cero-footer h3{font-size:18px}
+  }
+
+  @media print{
+    @page{size:A4;margin:14mm 12mm}
+    body{background:var(--branco)!important;color:#000!important}
+    body *{visibility:hidden!important}
+    #print-area, #print-area *{visibility:visible!important}
+    #print-area{position:absolute;left:0;top:0;width:100%;padding:0;margin:0}
+    header,footer,.hero,.actions,#gate-acesso,#form-risco,.rr-cta,#etapa-rr,#email-status-card{display:none!important}
+    .result-card{box-shadow:none!important;border:1px solid #ccc;border-radius:6px;padding:18px!important;margin:0 0 14px!important}
+    .score-box{background:#0043D8!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:#fff!important}
+    .grau-box{background:#d9534f!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:#fff!important}
+    .freq-final-box{background:#003B91!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:#fff!important}
+    .score-box .classif{background:#E8B461!important;color:#3d2806!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+    .breakdown th{background:#f0f0f0!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+    .breakdown tr.total td{background:#e0e8f5!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+    .legend-table tr.match,.legend-table td.cell-match{background:#fef9ec!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+    .dal-cero-footer{background:#041F47!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:#fff!important;page-break-inside:avoid}
+    .print-header{display:block!important;text-align:center;margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid #0043D8}
+    .print-header strong{color:#0043D8;font-size:18px;letter-spacing:2px}
+    .print-header .sub{font-size:11px;color:#666;display:block;margin-top:2px}
+  }
+  .print-header{display:none}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="brand">
+      <img src="logo.svg" alt="Dal Cero Consultoria">
+      <span class="logo-texto">DAL CERO CONSULTORIA</span>
+    </div>
+    <div class="header-tagline">Regulatório · MAPA</div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-inner">
+    <span class="badge-pill">Alimentação Animal · SDA/MAPA</span>
+    <h1>Calculadora de Risco</h1>
+    <p class="lead">Avaliação do <strong>Risco Intrínseco (RI)</strong> e do <strong>Risco Regulatório (RR)</strong> de estabelecimentos de alimentação animal, conforme o Manual SDA/MAPA — Caracterização do Risco (v.3, 2025).</p>
+    <div class="alert-banner">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <span>Esta é uma estimativa baseada no manual oficial. O cálculo definitivo é realizado pelo serviço de inspeção competente.</span>
+    </div>
+  </div>
+</section>
+
+<main>
+
+  <!-- ==================== GATE DE ACESSO ==================== -->
+  <section id="gate-acesso">
+    <div class="gate-card">
+      <h2>Acesse a calculadora gratuita</h2>
+      <p class="gate-sub">Preencha seus dados abaixo para acessar a ferramenta. O relatório com o resultado completo será enviado para o seu e-mail ao final do cálculo.</p>
+
+      <div class="gate-grid">
+        <div class="input-group">
+          <label for="g-nome">Seu nome <span class="required">*</span></label>
+          <input type="text" id="g-nome" placeholder="Nome completo">
+        </div>
+        <div class="input-group">
+          <label for="g-email">E-mail <span class="required">*</span></label>
+          <input type="email" id="g-email" placeholder="seu@email.com">
+        </div>
+        <div class="input-group">
+          <label for="g-telefone">Telefone / WhatsApp <span class="required">*</span></label>
+          <input type="tel" id="g-telefone" placeholder="(00) 00000-0000">
+        </div>
+        <div class="input-group">
+          <label for="g-cargo">Cargo / função</label>
+          <input type="text" id="g-cargo" placeholder="Ex: Responsável técnico">
+        </div>
+        <div class="input-group">
+          <label for="g-empresa">Nome do estabelecimento <span class="required">*</span></label>
+          <input type="text" id="g-empresa" placeholder="Ex: Indústria de Rações XYZ Ltda.">
+        </div>
+        <div class="input-group">
+          <label for="g-cnpj">CNPJ / Registro MAPA</label>
+          <input type="text" id="g-cnpj" placeholder="Opcional">
+        </div>
+      </div>
+
+      <div class="gate-consent">
+        <label style="display:flex;gap:10px;align-items:flex-start;cursor:pointer">
+          <input type="checkbox" id="g-consent" style="margin-top:2px;flex-shrink:0;width:18px;height:18px;accent-color:var(--azul-forte)">
+          <span><strong>Autorizo</strong>, conforme a LGPD (Lei 13.709/2018), o tratamento dos meus dados pessoais e das informações da minha empresa pela <strong>Dal Cero Consultoria</strong>, com a finalidade de envio do relatório de risco e eventual contato comercial sobre serviços de consultoria regulatória. Posso solicitar a exclusão a qualquer momento pelo e-mail comercial@dalceroconsultoria.com.br.</span>
+        </label>
+      </div>
+
+      <button type="button" class="btn-primary btn-large" onclick="acessarCalculadora()">Acessar calculadora →</button>
+      <div id="gate-status" class="gate-status"></div>
+    </div>
+  </section>
+
+  <!-- ==================== CONTEÚDO DA CALCULADORA (escondido até gate ser preenchido) ==================== -->
+  <div id="conteudo-calculadora">
+
+  <form id="form-risco">
+
+    <!-- ETAPA 1 — Fatores de Risco -->
+    <section class="card">
+      <p class="section-title">1 · Fatores de Risco Intrínseco</p>
+      <p class="section-desc">Avalie os seis fatores. Cada classificação é ponderada por peso (Quadro III do manual).</p>
+
+      <div class="question">
+        <div class="question-head"><span class="question-num">1</span><span class="question-text">Qual o volume anual de produção? <small style="font-weight:500;color:#6b7280">(Peso 5)</small></span></div>
+        <div class="question-help">Quantitativo total anual (todas as categorias somadas). Fonte: SipeAgro.</div>
+        <div class="input-group" style="margin-left:40px">
+          <label for="volume">Volume produzido (toneladas/ano)</label>
+          <input type="number" id="volume" min="0" step="any" placeholder="Ex: 8500 — classifica automaticamente abaixo">
+        </div>
+        <div class="pill-options">
+          <label class="pill"><input type="radio" name="f1" value="1">Até 1.000 t <span class="pts">1pt</span></label>
+          <label class="pill"><input type="radio" name="f1" value="2">1.000 a 10.000 t <span class="pts">2pt</span></label>
+          <label class="pill"><input type="radio" name="f1" value="3">10.000 a 35.000 t <span class="pts">3pt</span></label>
+          <label class="pill"><input type="radio" name="f1" value="4">Acima de 35.000 t <span class="pts">4pt</span></label>
+        </div>
+      </div>
+
+      <div class="section-divider"></div>
+
+      <div class="question">
+        <div class="question-head"><span class="question-num">2</span><span class="question-text">Quais tipos e categorias de produtos são elaborados? <small style="font-weight:500;color:#6b7280">(Peso 6)</small></span></div>
+        <div class="question-help">Marque <strong>todas</strong> as categorias elaboradas (Quadro I do manual).</div>
+        <div style="margin-left:40px">
+          <div class="group-block">
+            <div class="group-title">Tipo 1 <span class="pts-tag">1 ponto cada</span></div>
+            <div class="check-list no-indent">
+              <label class="check"><input type="checkbox" name="f2_t1" value="1"><span class="check-content">Alimentos completos, específicos, coadjuvantes ou produtos mastigáveis</span></label>
+              <label class="check"><input type="checkbox" name="f2_t1" value="1"><span class="check-content">Rações</span></label>
+              <label class="check"><input type="checkbox" name="f2_t1" value="1"><span class="check-content">Concentrados</span></label>
+              <label class="check"><input type="checkbox" name="f2_t1" value="1"><span class="check-content">Suplementos</span></label>
+              <label class="check"><input type="checkbox" name="f2_t1" value="1"><span class="check-content">Ingredientes de origem vegetal (exceto Tipos 2 e 4)</span></label>
+            </div>
+          </div>
+          <div class="group-block">
+            <div class="group-title">Tipo 2 <span class="pts-tag">4 pontos cada</span></div>
+            <div class="check-list no-indent">
+              <label class="check"><input type="checkbox" name="f2_t2" value="4"><span class="check-content">Núcleos</span></label>
+              <label class="check"><input type="checkbox" name="f2_t2" value="4"><span class="check-content">Premixes</span></label>
+              <label class="check"><input type="checkbox" name="f2_t2" value="4"><span class="check-content">Aditivos tecnológicos (exceto Tipo 4)</span></label>
+              <label class="check"><input type="checkbox" name="f2_t2" value="4"><span class="check-content">Aditivos sensoriais (exceto Tipo 3)</span></label>
+              <label class="check"><input type="checkbox" name="f2_t2" value="4"><span class="check-content">Ingredientes de origem vegetal (farelos e óleos)</span></label>
+            </div>
+          </div>
+          <div class="group-block">
+            <div class="group-title">Tipo 3 <span class="pts-tag">6 pontos cada</span></div>
+            <div class="check-list no-indent">
+              <label class="check"><input type="checkbox" name="f2_t3" value="6"><span class="check-content">Coprodutos</span></label>
+              <label class="check"><input type="checkbox" name="f2_t3" value="6"><span class="check-content">Ingredientes de origem mineral (exceto Tipo 4)</span></label>
+              <label class="check"><input type="checkbox" name="f2_t3" value="6"><span class="check-content">Aditivos sensoriais à base de vísceras organolépticas</span></label>
+              <label class="check"><input type="checkbox" name="f2_t3" value="6"><span class="check-content">Aditivos nutricionais (aminoácidos e vitaminas)</span></label>
+            </div>
+          </div>
+          <div class="group-block">
+            <div class="group-title">Tipo 4 <span class="pts-tag">8 pontos cada</span></div>
+            <div class="check-list no-indent">
+              <label class="check"><input type="checkbox" name="f2_t4" value="8"><span class="check-content">Ingredientes vegetais de subprodutos de biocombustíveis (DGS, DDGS, glicerina, glicerol)</span></label>
+              <label class="check"><input type="checkbox" name="f2_t4" value="8"><span class="check-content">Ingredientes vegetais de fermentação microbiana (leveduras)</span></label>
+              <label class="check"><input type="checkbox" name="f2_t4" value="8"><span class="check-content">Ingredientes de origem vegetal (polpa cítrica)</span></label>
+              <label class="check"><input type="checkbox" name="f2_t4" value="8"><span class="check-content">Ingredientes de origem mineral (cal e bentonita)</span></label>
+              <label class="check"><input type="checkbox" name="f2_t4" value="8"><span class="check-content">Ingredientes de origem animal</span></label>
+              <label class="check"><input type="checkbox" name="f2_t4" value="8"><span class="check-content">Aditivos zootécnicos</span></label>
+              <label class="check"><input type="checkbox" name="f2_t4" value="8"><span class="check-content">Aditivos tecnológicos (adsorventes de micotoxinas à base de parede celular)</span></label>
+              <label class="check"><input type="checkbox" name="f2_t4" value="8"><span class="check-content">Aditivos nutricionais (exceto Tipo 3)</span></label>
+            </div>
+          </div>
+          <div class="obs">Somatório: <strong id="f2-soma">0</strong> pontos · até 5 = Baixo · 6-10 = Médio · 11-15 = Alto · >15 = Altíssimo</div>
+        </div>
+      </div>
+
+      <div class="section-divider"></div>
+
+      <div class="question">
+        <div class="question-head"><span class="question-num">3</span><span class="question-text">O estabelecimento produz para animais de produção? <small style="font-weight:500;color:#6b7280">(Peso 5)</small></span></div>
+        <div class="question-help">Não inclui exclusivamente equídeos nem fabricantes exclusivos de ingredientes/aditivos/coprodutos.</div>
+        <div class="pill-options">
+          <label class="pill"><input type="radio" name="f3" value="1">Não <span class="pts">1pt</span></label>
+          <label class="pill"><input type="radio" name="f3" value="4">Sim <span class="pts">4pt</span></label>
+        </div>
+      </div>
+
+      <div class="section-divider"></div>
+
+      <div class="question">
+        <div class="question-head"><span class="question-num">4</span><span class="question-text">Para quais espécies o estabelecimento produz? <small style="font-weight:500;color:#6b7280">(Peso 4)</small></span></div>
+        <div class="question-help">Marque todas as espécies aplicáveis (Quadro II do manual).</div>
+        <div class="check-list">
+          <label class="check"><input type="checkbox" name="f4" value="6"><span class="check-content">Aves de produção</span><span class="check-pts">6pt</span></label>
+          <label class="check"><input type="checkbox" name="f4" value="6"><span class="check-content">Suínos</span><span class="check-pts">6pt</span></label>
+          <label class="check"><input type="checkbox" name="f4" value="3"><span class="check-content">Ruminantes</span><span class="check-pts">3pt</span></label>
+          <label class="check"><input type="checkbox" name="f4" value="2"><span class="check-content">Peixes / animais aquáticos de produção</span><span class="check-pts">2pt</span></label>
+          <label class="check"><input type="checkbox" name="f4" value="1"><span class="check-content">Qualquer outra espécie (equinos, pets, coelhos etc.)</span><span class="check-pts">1pt</span></label>
+        </div>
+        <div class="obs" style="margin-left:40px">Somatório: <strong id="f4-soma">0</strong> pontos · até 1 = Baixo · 2-5 = Médio · 6-8 = Alto · ≥9 = Altíssimo</div>
+      </div>
+
+      <div class="section-divider"></div>
+
+      <div class="question">
+        <div class="question-head"><span class="question-num">5</span><span class="question-text">Utiliza melhoradores de desempenho? <small style="font-weight:500;color:#6b7280">(Peso 2)</small></span></div>
+        <div class="question-help">Antimicrobianos, beta-agonistas ou anticoccidianos. Empresas que não usam devem declarar no SipeAgro.</div>
+        <div class="pill-options">
+          <label class="pill"><input type="radio" name="f5" value="1">Não usa <span class="pts">1pt</span></label>
+          <label class="pill"><input type="radio" name="f5" value="4">Sim, usa <span class="pts">4pt</span></label>
+        </div>
+      </div>
+
+      <div class="section-divider"></div>
+
+      <div class="question">
+        <div class="question-head"><span class="question-num">6</span><span class="question-text">Possui autorização para uso de medicamentos veterinários? <small style="font-weight:500;color:#6b7280">(Peso 4)</small></span></div>
+        <div class="question-help">Autorização exclusiva para homeopáticos não é contabilizada.</div>
+        <div class="pill-options">
+          <label class="pill"><input type="radio" name="f6" value="1">Não / apenas homeopáticos <span class="pts">1pt</span></label>
+          <label class="pill"><input type="radio" name="f6" value="4">Sim, possui autorização <span class="pts">4pt</span></label>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <p class="section-title">2 · Complexidade do Processo Produtivo</p>
+      <p class="section-desc">Marque todos os tipos de processamento desenvolvidos pelo estabelecimento (Quadro IV).</p>
+      <div class="check-list no-indent">
+        <label class="check"><input type="checkbox" name="c" value="1"><span class="check-content"><strong>Complexidade 1</strong><small>Moagem, seleção, limpeza, fracionamento, processamentos físicos simples ou térmicos simples.</small></span><span class="check-pts">1pt</span></label>
+        <label class="check"><input type="checkbox" name="c" value="5"><span class="check-content"><strong>Complexidade 2</strong><small>Dosagem e homogeneização de sólidos ou líquidos.</small></span><span class="check-pts">5pt</span></label>
+        <label class="check"><input type="checkbox" name="c" value="10"><span class="check-content"><strong>Complexidade 3</strong><small>Filtração, ultrafiltração, atomização, micronização, centrifugação, aspersão, peletização sem condicionamento.</small></span><span class="check-pts">10pt</span></label>
+        <label class="check"><input type="checkbox" name="c" value="10"><span class="check-content"><strong>Complexidade 4</strong><small>Secagem em estufas, tostação, peletização com condicionamento, expansão, extrusão, fervura, cozimento.</small></span><span class="check-pts">10pt</span></label>
+        <label class="check"><input type="checkbox" name="c" value="20"><span class="check-content"><strong>Complexidade 5</strong><small>Pasteurização, cocção em digestores, esterilização, autoclavagem, calcinação, secagem em fornos.</small></span><span class="check-pts">20pt</span></label>
+        <label class="check"><input type="checkbox" name="c" value="10"><span class="check-content"><strong>Complexidade 6</strong><small>Processamentos químicos/enzimáticos e biológicos (fermentação).</small></span><span class="check-pts">10pt</span></label>
+        <label class="check"><input type="checkbox" name="c" value="17"><span class="check-content"><strong>Complexidade 7</strong><small>Recebe e processa matéria-prima de origem animal (exceto lácteos, ovos e ovoprodutos).</small></span><span class="check-pts">17pt</span></label>
+      </div>
+      <div class="obs">Somatório de complexidade: <strong id="c-soma">0</strong> pontos.</div>
+    </section>
+
+    <div class="actions">
+      <button type="button" class="btn-secondary" onclick="limparFormulario()">Limpar formulário</button>
+      <button type="button" class="btn-primary" onclick="calcularRisco()">Calcular Risco Intrínseco →</button>
+    </div>
+  </form>
+
+  <!-- RESULTADO DO RI -->
+  <section id="resultado">
+    <div class="result-card" id="resultado-ri">
+      <div class="result-header">
+        <span class="tag-pill">Risco Intrínseco</span>
+        <h2>Resultado do RI</h2>
+        <div class="empresa">Estabelecimento: <strong id="res-empresa">—</strong> · Avaliado em <span id="res-data"></span></div>
+      </div>
+
+      <div class="score-box">
+        <div class="pts-label">Pontuação Total</div>
+        <div class="pts" id="res-pts">0</div>
+        <div class="classif" id="res-classif">—</div>
+        <div class="nivel" id="res-nivel">—</div>
+        <div class="frequencia" id="res-freq">—</div>
+      </div>
+
+      <div class="breakdown">
+        <h3>Detalhamento da pontuação</h3>
+        <table>
+          <thead><tr><th>Fator</th><th>Classificação</th><th style="text-align:center">Pts</th><th style="text-align:center">Peso</th><th style="text-align:right">Total</th></tr></thead>
+          <tbody id="res-tabela"></tbody>
+        </table>
+      </div>
+
+      <div class="legend-table">
+        <h3 style="color:var(--azul-forte);font-size:13px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;margin:24px 0 12px">Classificação do RI · Quadro V</h3>
+        <table id="legenda-tabela">
+          <thead><tr><th>Pontuação</th><th>Classificação</th><th>Nível</th><th>Frequência (RR Grau 0)</th></tr></thead>
+          <tbody>
+            <tr data-range="A"><td>&lt; 50</td><td>A</td><td>Baixíssimo</td><td>36 meses</td></tr>
+            <tr data-range="B"><td>51 – 68</td><td>B</td><td>Baixo</td><td>30 meses</td></tr>
+            <tr data-range="C"><td>69 – 84</td><td>C</td><td>Médio</td><td>24 meses</td></tr>
+            <tr data-range="D"><td>85 – 103</td><td>D</td><td>Alto</td><td>18 meses</td></tr>
+            <tr data-range="E"><td>&gt; 104</td><td>E</td><td>Altíssimo</td><td>12 meses</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="btn-secondary" onclick="pularRR()">Finalizar — só RI</button>
+      <button type="button" class="btn-rr" onclick="iniciarRR()">Calcular Risco Regulatório também →</button>
+    </div>
+  </section>
+
+  <!-- ETAPA RR -->
+  <section id="etapa-rr">
+    <div class="card">
+      <p class="section-title rr-title">3 · Checklist do Risco Regulatório</p>
+      <p class="section-desc">Marque os itens em que houve descumprimento durante a última fiscalização. Cada item está classificado em <strong>Grau 1</strong> (amarelo) ou <strong>Grau 2</strong> (vermelho), conforme a Figura 3 do manual.</p>
+
+      <div class="group-block">
+        <div class="group-title rr-group">1 · Medida cautelar de interdição (com ou sem apreensão)</div>
+        <div class="check-list no-indent">
+          <label class="check rr-item"><input type="checkbox" name="rr" value="2" data-id="1.1"><span class="check-content">1.1 Descumprir interdição</span><span class="grau-tag grau-2">Grau 2</span></label>
+          <label class="check rr-item"><input type="checkbox" name="rr" value="2" data-id="1.2"><span class="check-content">1.2 Subtrair, substituir, remover ou comercializar produtos apreendidos pela fiscalização</span><span class="grau-tag grau-2">Grau 2</span></label>
+          <label class="check rr-item"><input type="checkbox" name="rr" value="2" data-id="1.3"><span class="check-content">1.3 Operar estabelecimento em condições inadequadas de conservação e higiene</span><span class="grau-tag grau-2">Grau 2</span></label>
+          <label class="check rr-item"><input type="checkbox" name="rr" value="2" data-id="1.4"><span class="check-content">1.4 Ter em estoque ou utilizar matéria-prima ou produtos proibidos por legislação específica</span><span class="grau-tag grau-2">Grau 2</span></label>
+          <label class="check rr-item"><input type="checkbox" name="rr" value="2" data-id="1.5"><span class="check-content">1.5 Ter em estoque ou utilizar medicamento ou produto intermediário medicamentoso sem autorização do MAPA</span><span class="grau-tag grau-2">Grau 2</span></label>
+          <label class="check rr-item"><input type="checkbox" name="rr" value="2" data-id="1.6"><span class="check-content">1.6 Não cumprir com providências previstas em planos de ação, fiscalizações, autuações, intimações ou notificações</span><span class="grau-tag grau-2">Grau 2</span></label>
+          <label class="check rr-item"><input type="checkbox" name="rr" value="2" data-id="1.7"><span class="check-content">1.7 Não implementar efetivamente as Boas Práticas de Fabricação (BPF)<small>Inclui: descumprimento à grade de sensibilidade · uso de substâncias não contempladas · deficiência de monitoramento · processos de limpeza não validados · registros não auditáveis · evidências de pragas · falta de rastreabilidade.</small></span><span class="grau-tag grau-2">Grau 2</span></label>
+          <label class="check rr-item"><input type="checkbox" name="rr" value="2" data-id="1.8"><span class="check-content">1.8 Não executar análises de controle de qualidade dos produtos acabados</span><span class="grau-tag grau-2">Grau 2</span></label>
+        </div>
+      </div>
+
+      <div class="group-block">
+        <div class="group-title rr-group">2 · Medida cautelar de apreensão</div>
+        <div class="check-list no-indent">
+          <label class="check rr-item"><input type="checkbox" name="rr" value="1" data-id="2.1"><span class="check-content">2.1 Adquirir ou utilizar matéria-prima ou produto não registrado ou não indicado para alimentação animal</span><span class="grau-tag grau-1">Grau 1</span></label>
+          <label class="check rr-item"><input type="checkbox" name="rr" value="1" data-id="2.2"><span class="check-content">2.2 Ter em estoque ou utilizar matéria-prima ou produto não indicado para a espécie/categoria animal</span><span class="grau-tag grau-1">Grau 1</span></label>
+          <label class="check rr-item"><input type="checkbox" name="rr" value="1" data-id="2.3"><span class="check-content">2.3 Ter em estoque ou utilizar produtos oriundos de estabelecimentos sem registro</span><span class="grau-tag grau-1">Grau 1</span></label>
+          <label class="check rr-item"><input type="checkbox" name="rr" value="1" data-id="2.4"><span class="check-content">2.4 Ter em estoque ou utilizar produtos vencidos na fabricação</span><span class="grau-tag grau-1">Grau 1</span></label>
+          <label class="check rr-item"><input type="checkbox" name="rr" value="1" data-id="2.5"><span class="check-content">2.5 Fabricar produto em desacordo com a composição registrada ou declarada (sem análise laboratorial)</span><span class="grau-tag grau-1">Grau 1</span></label>
+          <label class="check rr-item"><input type="checkbox" name="rr" value="2" data-id="2.6"><span class="check-content">2.6 Elaborar produtos ou fazer propaganda com alegações proibidas</span><span class="grau-tag grau-2">Grau 2</span></label>
+          <label class="check rr-item"><input type="checkbox" name="rr" value="2" data-id="2.7"><span class="check-content">2.7 Adulterar intencionalmente a data de validade no rótulo do produto</span><span class="grau-tag grau-2">Grau 2</span></label>
+        </div>
+      </div>
+
+      <div class="group-block">
+        <div class="group-title rr-group">3 · Autuação</div>
+        <div class="check-list no-indent">
+          <label class="check rr-item"><input type="checkbox" name="rr" value="2" data-id="3.1"><span class="check-content">3.1 Causar impedimento ou embaraço à fiscalização</span><span class="grau-tag grau-2">Grau 2</span></label>
+          <label class="check rr-item"><input type="checkbox" name="rr" value="2" data-id="3.2"><span class="check-content">3.2 Fraudar ou simular legalidade de documentos, desacatar, intimidar, ameaçar, agredir ou tentar subornar servidor</span><span class="grau-tag grau-2">Grau 2</span></label>
+          <label class="check rr-item"><input type="checkbox" name="rr" value="2" data-id="3.3"><span class="check-content">3.3 Omitir dados estabelecidos pela legislação ou utilizar-se de falsa declaração</span><span class="grau-tag grau-2">Grau 2</span></label>
+          <label class="check rr-item"><input type="checkbox" name="rr" value="2" data-id="3.4"><span class="check-content">3.4 Suspensão da certificação por não atendimento de requisitos para exportação</span><span class="grau-tag grau-2">Grau 2</span></label>
+        </div>
+      </div>
+
+      <div class="group-block">
+        <div class="group-title rr-group">4 · Autuação mesmo sem contraprova</div>
+        <div class="check-list no-indent">
+          <label class="check rr-item"><input type="checkbox" name="rr" value="2" data-id="4.1"><span class="check-content">4.1 Resultado desconforme em monitoramento oficial de aditivos anticoccidianos/antimicrobianos, tendo o estabelecimento declarado não utilizá-los</span><span class="grau-tag grau-2">Grau 2</span></label>
+        </div>
+      </div>
+
+      <div class="obs"><strong>Classificação:</strong> nenhum item marcado = <strong>Grau 0</strong> · pelo menos um item Grau 1 (sem Grau 2) = <strong>Grau 1</strong> · pelo menos um item Grau 2 = <strong>Grau 2</strong></div>
+
+      <div class="actions">
+        <button type="button" class="btn-secondary" onclick="voltarParaRI()">← Voltar ao RI</button>
+        <button type="button" class="btn-rr" onclick="calcularRR()">Finalizar e enviar relatório →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESULTADO FINAL -->
+  <section id="resultado-final">
+    <!-- Status de envio do e-mail -->
+    <div class="email-status-card loading" id="email-status-card">
+      <div class="icon">⏳</div>
+      <h3 id="email-status-titulo">Enviando seu relatório…</h3>
+      <p id="email-status-msg">Aguarde, estamos preparando seu relatório completo.</p>
+    </div>
+
+    <div id="print-area">
+      <div class="print-header">
+        <strong>DAL CERO CONSULTORIA</strong>
+        <span class="sub">Relatório de Risco do Estabelecimento — Alimentação Animal — SDA/MAPA</span>
+      </div>
+
+      <!-- RI -->
+      <div class="result-card">
+        <div class="result-header">
+          <span class="tag-pill">Risco Intrínseco</span>
+          <h2>Resultado do RI</h2>
+          <div class="empresa">Estabelecimento: <strong id="rf-empresa">—</strong> · Avaliado em <span id="rf-data"></span></div>
+        </div>
+        <div class="score-box">
+          <div class="pts-label">Pontuação Total</div>
+          <div class="pts" id="rf-pts">0</div>
+          <div class="classif" id="rf-classif">—</div>
+          <div class="nivel" id="rf-nivel">—</div>
+        </div>
+      </div>
+
+      <!-- RR -->
+      <div class="result-card">
+        <div class="result-header">
+          <span class="tag-pill rr">Risco Regulatório</span>
+          <h2>Grau de RR Apurado</h2>
+        </div>
+        <div class="grau-box">
+          <div class="grau-label">Grau de Risco Regulatório</div>
+          <div class="grau-num" id="rf-grau">0</div>
+          <div class="grau-desc" id="rf-grau-desc">—</div>
+        </div>
+        <div class="rr-items-list" id="rf-rr-itens-container" style="display:none">
+          <h4>Itens descumpridos identificados</h4>
+          <ul id="rf-rr-itens"></ul>
+        </div>
+      </div>
+
+      <!-- Frequência final -->
+      <div class="result-card">
+        <div class="result-header">
+          <span class="tag-pill">Conclusão</span>
+          <h2>Frequência Mínima de Fiscalização</h2>
+        </div>
+        <div class="freq-final-box">
+          <div class="freq-label">Frequência Final Estimada</div>
+          <div class="freq-valor" id="rf-freq-final">—</div>
+          <div class="freq-sub">Conforme Quadro VIII — cruzamento do RI (<span id="rf-sub-ri">—</span>) com o RR (<span id="rf-sub-rr">—</span>)</div>
+        </div>
+
+        <div class="legend-table">
+          <h3 style="color:var(--azul-forte);font-size:13px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;margin:24px 0 12px">Quadro VIII · Frequência mínima por RI × RR</h3>
+          <table id="quadro-viii">
+            <thead><tr><th>RI</th><th>Grau 0</th><th>Grau 1</th><th>Grau 2</th></tr></thead>
+            <tbody>
+              <tr data-ri="A"><td><strong>Baixíssimo (A)</strong></td><td>36 meses</td><td>30 meses</td><td>24 meses</td></tr>
+              <tr data-ri="B"><td><strong>Baixo (B)</strong></td><td>30 meses</td><td>24 meses</td><td>18 meses</td></tr>
+              <tr data-ri="C"><td><strong>Médio (C)</strong></td><td>24 meses</td><td>18 meses</td><td>12 meses</td></tr>
+              <tr data-ri="D"><td><strong>Alto (D)</strong></td><td>18 meses</td><td>12 meses</td><td>9 meses</td></tr>
+              <tr data-ri="E"><td><strong>Altíssimo (E)</strong></td><td>12 meses</td><td>9 meses</td><td>6 meses</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div style="margin-top:24px;padding:16px;background:#f5f6f8;border-radius:10px;font-size:12px;color:#6b7280;border-left:3px solid var(--azul-claro);line-height:1.6">
+          <strong style="color:#1a2438">Importante:</strong> Esta é uma estimativa baseada no Manual SDA/MAPA — Caracterização do Risco (v.3, 2025). O cálculo oficial é realizado pelo serviço de inspeção competente.
+        </div>
+      </div>
+
+      <!-- ============= RODAPÉ COMERCIAL DAL CERO ============= -->
+      <div class="dal-cero-footer">
+        <span class="pitch-tag">Dal Cero Consultoria</span>
+        <h3>Identificou pontos de atenção? Nós temos a solução.</h3>
+        <p class="pitch">A <strong>Dal Cero Consultoria</strong> é especialista em regulatório MAPA para o setor de alimentação animal — diagnóstico, adequação de Boas Práticas de Fabricação, registros no SipeAgro, suporte em fiscalizações e gestão regulatória contínua. Nossa equipe técnica está pronta para reduzir o risco do seu estabelecimento e manter sua operação em conformidade. <strong>Fale com nosso comercial e construa um plano personalizado.</strong></p>
+
+        <div class="contact-grid">
+          <div class="contact-item">
+            <div class="contact-label">Camila · Comercial</div>
+            <div class="contact-value"><a href="https://wa.me/5549991993297" target="_blank">(49) 99199-3297</a></div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-label">Eduardo · Comercial</div>
+            <div class="contact-value"><a href="https://wa.me/5549999710329" target="_blank">(49) 99971-0329</a></div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-label">E-mail Comercial</div>
+            <div class="contact-value"><a href="mailto:comercial@dalceroconsultoria.com.br">comercial@dalceroconsultoria.com.br</a></div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-label">Site</div>
+            <div class="contact-value"><a href="https://dalceroacademy.com" target="_blank">dalceroacademy.com</a></div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-label">LinkedIn</div>
+            <div class="contact-value"><a href="https://www.linkedin.com/company/grupo-dal-cero/" target="_blank">/grupo-dal-cero</a></div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-label">Instagram</div>
+            <div class="contact-value"><a href="https://www.instagram.com/grupodalcero/" target="_blank">@grupodalcero</a></div>
+          </div>
+        </div>
+
+        <div class="address">
+          <strong>Dal Cero Consultoria</strong>
+          Rua Prefeito Albino Cerutti Cella, 322, Sala 06 · Centro · Maravilha — SC
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  </div><!-- /#conteudo-calculadora -->
+</main>
+
+<footer>
+  © 2026 Dal Cero Consultoria · <a href="mailto:comercial@dalceroconsultoria.com.br">comercial@dalceroconsultoria.com.br</a> · Baseado no Manual SDA/MAPA · <a href="https://wikisda.agricultura.gov.br/pt-br/Inspe%C3%A7%C3%A3o-Animal/Alimenta%C3%A7%C3%A3o-Animal/caracterizacao_risco_alimentacao_animal" target="_blank">Ver manual</a>
+</footer>
+
+<script>
+// ============ CONFIGURAÇÃO ============
+// E-mail principal (recebe a notificação) e CCs
+const FORMSUBMIT_EMAIL = 'comercial@dalceroconsultoria.com.br';
+const FORMSUBMIT_CC = 'comercial1@dalceroconsultoria.com.br,regulatorio@dalceroconsultoria.com.br';
+const FORMSUBMIT_URL = 'https://formsubmit.co/ajax/' + FORMSUBMIT_EMAIL;
+
+let leadData = null;        // dados do gate
+let ultimoCalculo = null;   // dados do cálculo
+
+const QUADRO_VIII = {
+  'Baixíssimo':{0:'36 meses',1:'30 meses',2:'24 meses'},
+  'Baixo':     {0:'30 meses',1:'24 meses',2:'18 meses'},
+  'Médio':     {0:'24 meses',1:'18 meses',2:'12 meses'},
+  'Alto':      {0:'18 meses',1:'12 meses',2:'9 meses'},
+  'Altíssimo': {0:'12 meses',1:'9 meses', 2:'6 meses'}
+};
+
+// ============ GATE DE ACESSO ============
+function acessarCalculadora(){
+  const statusEl = document.getElementById('gate-status');
+  statusEl.className = 'gate-status';
+  statusEl.textContent = '';
+
+  const nome = document.getElementById('g-nome').value.trim();
+  const email = document.getElementById('g-email').value.trim();
+  const telefone = document.getElementById('g-telefone').value.trim();
+  const empresa = document.getElementById('g-empresa').value.trim();
+  const cargo = document.getElementById('g-cargo').value.trim();
+  const cnpj = document.getElementById('g-cnpj').value.trim();
+  const consent = document.getElementById('g-consent').checked;
+
+  if(!nome || !email || !telefone || !empresa){
+    statusEl.className = 'gate-status error';
+    statusEl.textContent = 'Preencha os campos obrigatórios (nome, e-mail, telefone e nome do estabelecimento).';
+    return;
+  }
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    statusEl.className = 'gate-status error';
+    statusEl.textContent = 'Informe um e-mail válido.';
+    return;
+  }
+  if(!consent){
+    statusEl.className = 'gate-status error';
+    statusEl.textContent = 'É necessário aceitar o consentimento LGPD para acessar a calculadora.';
+    return;
+  }
+
+  // Salva dados do lead
+  leadData = {nome, email, telefone, cargo: cargo || '(não informado)', empresa, cnpj: cnpj || '(não informado)'};
+
+  // Esconde gate, mostra calculadora
+  document.getElementById('gate-acesso').style.display = 'none';
+  document.getElementById('conteudo-calculadora').style.display = 'block';
+  document.getElementById('conteudo-calculadora').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// ============ LISTENERS DE SOMAS PARCIAIS ============
+document.getElementById('volume').addEventListener('input',function(e){
+  const v = parseFloat(e.target.value);
+  if(isNaN(v)) return;
+  let classe = v <= 1000 ? '1' : v <= 10000 ? '2' : v <= 35000 ? '3' : '4';
+  const radio = document.querySelector('input[name="f1"][value="'+classe+'"]');
+  if(radio){radio.checked = true;}
+});
+
+function atualizaSoma(seletor, elemId){
+  let s = 0;
+  document.querySelectorAll(seletor+':checked').forEach(i => s += parseInt(i.value));
+  document.getElementById(elemId).textContent = s;
+}
+document.querySelectorAll('input[name^="f2_"]').forEach(i => i.addEventListener('change', () => atualizaSoma('input[name^="f2_"]','f2-soma')));
+document.querySelectorAll('input[name="f4"]').forEach(i => i.addEventListener('change', () => atualizaSoma('input[name="f4"]','f4-soma')));
+document.querySelectorAll('input[name="c"]').forEach(i => i.addEventListener('change', () => atualizaSoma('input[name="c"]','c-soma')));
+
+function classificaF2(s){return s<=5?{pts:1,nome:'Baixo'}:s<=10?{pts:2,nome:'Médio'}:s<=15?{pts:3,nome:'Alto'}:{pts:4,nome:'Altíssimo'}}
+function classificaF4(s){return s<=1?{pts:1,nome:'Baixo'}:s<=5?{pts:2,nome:'Médio'}:s<=8?{pts:3,nome:'Alto'}:{pts:4,nome:'Altíssimo'}}
+const NOMES_CLASSIF = {1:'Baixo',2:'Médio',3:'Alto',4:'Altíssimo'};
+
+// ============ CÁLCULO DO RI ============
+function calcularRisco(){
+  const f1 = document.querySelector('input[name="f1"]:checked');
+  if(!f1){alert('Selecione ou informe o volume (pergunta 1).');return;}
+  let somaF2 = 0;
+  document.querySelectorAll('input[name^="f2_"]:checked').forEach(i => somaF2 += parseInt(i.value));
+  if(somaF2 === 0){alert('Marque pelo menos uma categoria de produto (pergunta 2).');return;}
+  const c2 = classificaF2(somaF2);
+  const f3 = document.querySelector('input[name="f3"]:checked');
+  if(!f3){alert('Selecione uma opção para a pergunta 3.');return;}
+  let somaF4 = 0;
+  document.querySelectorAll('input[name="f4"]:checked').forEach(i => somaF4 += parseInt(i.value));
+  if(somaF4 === 0){alert('Marque pelo menos uma espécie (pergunta 4).');return;}
+  const c4 = classificaF4(somaF4);
+  const f5 = document.querySelector('input[name="f5"]:checked');
+  if(!f5){alert('Selecione uma opção para a pergunta 5.');return;}
+  const f6 = document.querySelector('input[name="f6"]:checked');
+  if(!f6){alert('Selecione uma opção para a pergunta 6.');return;}
+
+  const fatores = [
+    {nome:'1. Volume de produção', pts:parseInt(f1.value), peso:5},
+    {nome:'2. Tipos de produtos ('+somaF2+' pts)', pts:c2.pts, peso:6, classifNome:c2.nome},
+    {nome:'3. Animais de produção', pts:parseInt(f3.value), peso:5},
+    {nome:'4. Espécies ('+somaF4+' pts)', pts:c4.pts, peso:4, classifNome:c4.nome},
+    {nome:'5. Melhoradores de desempenho', pts:parseInt(f5.value), peso:2},
+    {nome:'6. Uso de medicamentos', pts:parseInt(f6.value), peso:4}
+  ];
+
+  let totalEtapa2 = 0;
+  fatores.forEach(f => { f.total = f.pts * f.peso; totalEtapa2 += f.total; });
+
+  let totalC = 0;
+  const complexidades = [];
+  document.querySelectorAll('input[name="c"]:checked').forEach(i => {
+    totalC += parseInt(i.value);
+    const lbl = i.closest('label').querySelector('strong');
+    if(lbl) complexidades.push(lbl.textContent);
+  });
+
+  const totalGeral = totalEtapa2 + totalC;
+
+  let classif, nivel, freq, classKey;
+  if(totalGeral < 50){classif='A'; nivel='Baixíssimo'; freq='1 fiscalização a cada 36 meses'; classKey='A';}
+  else if(totalGeral <= 68){classif='B'; nivel='Baixo'; freq='1 fiscalização a cada 30 meses'; classKey='B';}
+  else if(totalGeral <= 84){classif='C'; nivel='Médio'; freq='1 fiscalização a cada 24 meses'; classKey='C';}
+  else if(totalGeral <= 103){classif='D'; nivel='Alto'; freq='1 fiscalização a cada 18 meses'; classKey='D';}
+  else {classif='E'; nivel='Altíssimo'; freq='1 fiscalização a cada 12 meses'; classKey='E';}
+
+  const hoje = new Date();
+  const dataFormatada = hoje.toLocaleDateString('pt-BR') + ' às ' + hoje.toLocaleTimeString('pt-BR').slice(0,5);
+
+  document.getElementById('res-empresa').textContent = leadData.empresa;
+  document.getElementById('res-data').textContent = dataFormatada;
+  document.getElementById('res-pts').textContent = totalGeral;
+  document.getElementById('res-classif').textContent = 'Classificação ' + classif;
+  document.getElementById('res-nivel').textContent = nivel;
+  document.getElementById('res-freq').textContent = freq;
+
+  const tbody = document.getElementById('res-tabela');
+  tbody.innerHTML = '';
+  fatores.forEach(f => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = '<td>'+f.nome+'</td><td>'+(f.classifNome || NOMES_CLASSIF[f.pts])+'</td><td style="text-align:center">'+f.pts+'</td><td style="text-align:center">'+f.peso+'</td><td class="num">'+f.total+'</td>';
+    tbody.appendChild(tr);
+  });
+  tbody.insertAdjacentHTML('beforeend', '<tr><td colspan="4" style="text-align:right;color:#666">Subtotal Etapa 1</td><td class="num">'+totalEtapa2+'</td></tr>');
+  tbody.insertAdjacentHTML('beforeend', '<tr><td colspan="4" style="text-align:right;color:#666">Etapa 2 — Complexidade</td><td class="num">+'+totalC+'</td></tr>');
+  tbody.insertAdjacentHTML('beforeend', '<tr class="total"><td colspan="4">TOTAL (Risco Intrínseco)</td><td style="text-align:right">'+totalGeral+'</td></tr>');
+
+  document.querySelectorAll('#legenda-tabela tr').forEach(tr => tr.classList.remove('match'));
+  const matchTr = document.querySelector('#legenda-tabela tr[data-range="'+classKey+'"]');
+  if(matchTr) matchTr.classList.add('match');
+
+  ultimoCalculo = {
+    data: dataFormatada,
+    ri_pontuacao: totalGeral,
+    ri_classificacao: classif,
+    ri_nivel: nivel,
+    ri_frequencia: freq,
+    ri_fatores: fatores.map(f => f.nome + ': ' + (f.classifNome || NOMES_CLASSIF[f.pts]) + ' (' + f.total + ' pts)').join(' | '),
+    ri_complexidades: complexidades.join(', ') || 'nenhuma',
+    ri_pts_etapa2: totalEtapa2,
+    ri_pts_complexidade: totalC,
+    rr_grau: null,
+    rr_itens: [],
+    freq_final: freq
+  };
+
+  document.getElementById('resultado').style.display = 'block';
+  document.getElementById('etapa-rr').style.display = 'none';
+  document.getElementById('resultado-final').style.display = 'none';
+  document.getElementById('resultado').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// ============ FLUXO RR ============
+function pularRR(){
+  preencherResultadoFinal(false);
+  document.getElementById('resultado').style.display = 'none';
+  document.getElementById('resultado-final').style.display = 'block';
+  document.getElementById('resultado-final').scrollIntoView({behavior:'smooth',block:'start'});
+  enviarRelatorio();
+}
+
+function iniciarRR(){
+  document.getElementById('etapa-rr').style.display = 'block';
+  document.getElementById('resultado').style.display = 'none';
+  document.getElementById('etapa-rr').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function voltarParaRI(){
+  document.getElementById('etapa-rr').style.display = 'none';
+  document.getElementById('resultado').style.display = 'block';
+  document.getElementById('resultado').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function calcularRR(){
+  let temGrau1 = false, temGrau2 = false;
+  const itensMarcados = [];
+  document.querySelectorAll('input[name="rr"]:checked').forEach(i => {
+    const grau = parseInt(i.value);
+    if(grau === 2) temGrau2 = true;
+    if(grau === 1) temGrau1 = true;
+    const id = i.dataset.id;
+    const texto = i.closest('label').querySelector('.check-content').firstChild.textContent.trim();
+    itensMarcados.push({id, grau, texto});
+  });
+
+  let grau = temGrau2 ? 2 : temGrau1 ? 1 : 0;
+  ultimoCalculo.rr_grau = grau;
+  ultimoCalculo.rr_itens = itensMarcados;
+  ultimoCalculo.freq_final = QUADRO_VIII[ultimoCalculo.ri_nivel][grau];
+
+  preencherResultadoFinal(true);
+  document.getElementById('etapa-rr').style.display = 'none';
+  document.getElementById('resultado-final').style.display = 'block';
+  document.getElementById('resultado-final').scrollIntoView({behavior:'smooth',block:'start'});
+  enviarRelatorio();
+}
+
+function preencherResultadoFinal(comRR){
+  document.getElementById('rf-empresa').textContent = leadData.empresa;
+  document.getElementById('rf-data').textContent = ultimoCalculo.data;
+  document.getElementById('rf-pts').textContent = ultimoCalculo.ri_pontuacao;
+  document.getElementById('rf-classif').textContent = 'Classificação ' + ultimoCalculo.ri_classificacao;
+  document.getElementById('rf-nivel').textContent = ultimoCalculo.ri_nivel;
+
+  if(!comRR){
+    ultimoCalculo.rr_grau = 0;
+    ultimoCalculo.rr_itens = [];
+    ultimoCalculo.freq_final = QUADRO_VIII[ultimoCalculo.ri_nivel][0];
+  }
+
+  document.getElementById('rf-grau').textContent = ultimoCalculo.rr_grau;
+  const desc = ultimoCalculo.rr_grau === 0 ? (comRR?'Nenhum descumprimento':'RR não avaliado (assume Grau 0)') :
+               ultimoCalculo.rr_grau === 1 ? 'Descumprimento leve identificado' : 'Descumprimento grave identificado';
+  document.getElementById('rf-grau-desc').textContent = desc;
+
+  const containerItens = document.getElementById('rf-rr-itens-container');
+  const ul = document.getElementById('rf-rr-itens');
+  ul.innerHTML = '';
+  if(ultimoCalculo.rr_itens.length > 0){
+    containerItens.style.display = 'block';
+    ultimoCalculo.rr_itens.forEach(item => {
+      const li = document.createElement('li');
+      const grauClasse = item.grau === 1 ? 'grau-1' : 'grau-2';
+      li.innerHTML = '<span><strong>'+item.id+'</strong> · '+item.texto+'</span><span class="grau-tag '+grauClasse+'">Grau '+item.grau+'</span>';
+      ul.appendChild(li);
+    });
+  } else {
+    containerItens.style.display = 'none';
+  }
+
+  document.getElementById('rf-freq-final').textContent = ultimoCalculo.freq_final;
+  document.getElementById('rf-sub-ri').textContent = ultimoCalculo.ri_nivel;
+  document.getElementById('rf-sub-rr').textContent = 'Grau ' + ultimoCalculo.rr_grau + (!comRR?' (não avaliado)':'');
+
+  document.querySelectorAll('#quadro-viii td').forEach(td => td.classList.remove('cell-match'));
+  const linhaRI = document.querySelector('#quadro-viii tr[data-ri="'+ultimoCalculo.ri_classificacao+'"]');
+  if(linhaRI){ const td = linhaRI.children[ultimoCalculo.rr_grau + 1]; if(td) td.classList.add('cell-match'); }
+}
+
+function limparFormulario(){
+  if(!confirm('Limpar todos os campos do formulário?')) return;
+  document.getElementById('form-risco').reset();
+  document.querySelectorAll('input[name="rr"]').forEach(i => i.checked = false);
+  document.getElementById('f2-soma').textContent = '0';
+  document.getElementById('f4-soma').textContent = '0';
+  document.getElementById('c-soma').textContent = '0';
+  document.getElementById('resultado').style.display = 'none';
+  document.getElementById('etapa-rr').style.display = 'none';
+  document.getElementById('resultado-final').style.display = 'none';
+  ultimoCalculo = null;
+  document.querySelector('main').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// ============ ENVIO AUTOMÁTICO DO RELATÓRIO ============
+function montarAutoresponse(){
+  const itensRR = ultimoCalculo.rr_itens.length > 0
+    ? '\n\nITENS DESCUMPRIDOS IDENTIFICADOS:\n' + ultimoCalculo.rr_itens.map(it => '  • Item ' + it.id + ' (Grau ' + it.grau + '): ' + it.texto).join('\n')
+    : '';
+
+  return 'Olá ' + leadData.nome + ',\n\n' +
+    'Obrigado por usar a Calculadora de Risco da Dal Cero Consultoria.\n\n' +
+    '════════════════════════════════════\n' +
+    'SEU RELATÓRIO DE RISCO\n' +
+    '════════════════════════════════════\n\n' +
+    'Estabelecimento: ' + leadData.empresa + '\n' +
+    'CNPJ/Registro MAPA: ' + leadData.cnpj + '\n' +
+    'Data da avaliação: ' + ultimoCalculo.data + '\n\n' +
+    '--- RISCO INTRÍNSECO (RI) ---\n' +
+    'Pontuação total: ' + ultimoCalculo.ri_pontuacao + ' pontos\n' +
+    'Classificação: ' + ultimoCalculo.ri_classificacao + ' (' + ultimoCalculo.ri_nivel + ')\n\n' +
+    '--- RISCO REGULATÓRIO (RR) ---\n' +
+    'Grau: ' + ultimoCalculo.rr_grau + (ultimoCalculo.rr_grau === 0 && ultimoCalculo.rr_itens.length === 0 ? ' (RR não avaliado, assume Grau 0)' : '') + itensRR + '\n\n' +
+    '--- CONCLUSÃO ---\n' +
+    'Frequência mínima estimada de fiscalização: ' + ultimoCalculo.freq_final + '\n' +
+    '(Conforme Quadro VIII — cruzamento RI × RR)\n\n' +
+    '════════════════════════════════════\n' +
+    'A DAL CERO PODE TE AJUDAR\n' +
+    '════════════════════════════════════\n\n' +
+    'Identificou pontos de atenção neste diagnóstico? A Dal Cero Consultoria é especialista em regulatório MAPA para o setor de alimentação animal — diagnóstico, adequação de Boas Práticas de Fabricação, registros no SipeAgro, suporte em fiscalizações e gestão regulatória contínua. Nossa equipe técnica está pronta para reduzir o risco do seu estabelecimento e manter sua operação em conformidade.\n\n' +
+    'Fale com nosso comercial e construa um plano personalizado.\n\n' +
+    '════════════════════════════════════\n' +
+    'FALE CONOSCO\n' +
+    '════════════════════════════════════\n\n' +
+    'Camila (Comercial): (49) 99199-3297 — https://wa.me/5549991993297\n' +
+    'Eduardo (Comercial): (49) 99971-0329 — https://wa.me/5549999710329\n' +
+    'E-mail: comercial@dalceroconsultoria.com.br\n' +
+    'Site: https://dalceroacademy.com\n' +
+    'LinkedIn: https://www.linkedin.com/company/grupo-dal-cero/\n' +
+    'Instagram: https://www.instagram.com/grupodalcero/\n\n' +
+    'Dal Cero Consultoria\n' +
+    'Rua Prefeito Albino Cerutti Cella, 322, Sala 06\n' +
+    'Centro — Maravilha/SC\n\n' +
+    '--\n' +
+    'Esta é uma estimativa baseada no Manual SDA/MAPA — Caracterização do Risco (v.3, 2025). O cálculo oficial é realizado pelo serviço de inspeção competente.';
+}
+
+function enviarRelatorio(){
+  const cardStatus = document.getElementById('email-status-card');
+  const tituloStatus = document.getElementById('email-status-titulo');
+  const msgStatus = document.getElementById('email-status-msg');
+
+  cardStatus.className = 'email-status-card loading';
+  cardStatus.querySelector('.icon').textContent = '⏳';
+  tituloStatus.textContent = 'Enviando seu relatório…';
+  msgStatus.innerHTML = 'Aguarde, estamos preparando seu relatório completo.';
+
+  const itensRR = ultimoCalculo.rr_itens.length > 0
+    ? ultimoCalculo.rr_itens.map(it => it.id + ' (Grau ' + it.grau + '): ' + it.texto).join(' | ')
+    : 'Nenhum item marcado';
+
+  const dados = {
+    _subject: '[Calculadora Risco] ' + leadData.nome + ' — ' + leadData.empresa,
+    _template: 'table',
+    _captcha: 'false',
+    _cc: FORMSUBMIT_CC,
+    _replyto: leadData.email,
+    _autoresponse: montarAutoresponse(),
+    'Nome do contato': leadData.nome,
+    'E-mail': leadData.email,
+    'Telefone': leadData.telefone,
+    'Cargo': leadData.cargo,
+    'Empresa': leadData.empresa,
+    'CNPJ / Registro MAPA': leadData.cnpj,
+    'Data do cálculo': ultimoCalculo.data,
+    '== RISCO INTRÍNSECO ==': '',
+    'RI - Pontuação Total': ultimoCalculo.ri_pontuacao,
+    'RI - Classificação': ultimoCalculo.ri_classificacao + ' — ' + ultimoCalculo.ri_nivel,
+    'RI - Fatores': ultimoCalculo.ri_fatores,
+    'RI - Complexidades': ultimoCalculo.ri_complexidades,
+    '== RISCO REGULATÓRIO ==': '',
+    'RR - Grau': ultimoCalculo.rr_grau === null ? 'Não avaliado' : 'Grau ' + ultimoCalculo.rr_grau,
+    'RR - Itens descumpridos': itensRR,
+    '== FREQUÊNCIA FINAL ==': '',
+    'Frequência mínima estimada (Quadro VIII)': ultimoCalculo.freq_final,
+    'Consentimento LGPD': 'SIM — aceito em ' + new Date().toLocaleString('pt-BR')
+  };
+
+  fetch(FORMSUBMIT_URL, {
+    method:'POST',
+    headers:{'Content-Type':'application/json','Accept':'application/json'},
+    body: JSON.stringify(dados)
+  })
+  .then(r => r.json())
+  .then(json => {
+    if(json.success === 'true' || json.success === true){
+      cardStatus.className = 'email-status-card success';
+      cardStatus.querySelector('.icon').textContent = '✓';
+      tituloStatus.textContent = 'Relatório enviado com sucesso!';
+      msgStatus.innerHTML = 'Seu relatório completo foi enviado para <strong>' + leadData.email + '</strong>. Verifique também a caixa de spam ou pasta de promoções.';
+    } else {
+      cardStatus.className = 'email-status-card error';
+      cardStatus.querySelector('.icon').textContent = '!';
+      tituloStatus.textContent = 'Não foi possível enviar agora';
+      msgStatus.innerHTML = 'Não conseguimos enviar seu relatório por e-mail. Você pode entrar em contato direto com a Dal Cero: <strong>comercial@dalceroconsultoria.com.br</strong>';
+    }
+  })
+  .catch(err => {
+    cardStatus.className = 'email-status-card error';
+    cardStatus.querySelector('.icon').textContent = '!';
+    tituloStatus.textContent = 'Erro de conexão';
+    msgStatus.innerHTML = 'Não conseguimos enviar agora. Por favor entre em contato: <strong>comercial@dalceroconsultoria.com.br</strong>';
+    console.error(err);
+  });
+}
+</script>
+
+</body>
+</html>
